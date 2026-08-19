@@ -49,19 +49,20 @@ public class ArticleService {
         }
         articleMapper.insert(article);
         saveTags(article.getId(), article.getTagIds());
-        return article;
+        // 回查，返回含分类名/标签/时间的完整实体
+        return articleMapper.selectById(article.getId());
     }
 
     @Transactional
-    public boolean update(Long id, Article article) {
+    public Article update(Long id, Article article) {
         if (articleMapper.selectById(id) == null) {
-            return false;
+            return null;
         }
         article.setId(id);
         articleMapper.update(article);
         articleMapper.deleteArticleTags(id);
         saveTags(id, article.getTagIds());
-        return true;
+        return articleMapper.selectById(id);
     }
 
     @Transactional

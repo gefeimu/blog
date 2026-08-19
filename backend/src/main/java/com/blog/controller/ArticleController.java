@@ -61,10 +61,11 @@ public class ArticleController {
         if (article.getTitle() == null || article.getTitle().isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "title 不能为空"));
         }
-        if (!articleService.update(id, article)) {
+        Article updated = articleService.update(id, article);
+        if (updated == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(article);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
