@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.ArticleMapper">
+
+    <resultMap id="articleMap" type="com.blog.entity.Article">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="summary" property="summary"/>
+        <result column="content_path" property="contentPath"/>
+        <result column="status" property="status"/>
+        <result column="view_count" property="viewCount"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <collection property="tags" ofType="string" select="selectTagNames" column="id"/>
+    </resultMap>
+
+    <sql id="baseColumns">
+        a.id, a.title, a.category_id, a.summary, a.content_path,
+        a.status, a.view_count, a.created_at, a.updated_at,
+        c.name AS category_name
+    </sql>
+
+    <sql id="fromClause">
+        FROM article a
+        LEFT JOIN category c ON a.category_id = c.id
+    </sql>
+
+    <select id="selectPage" resultMap="articleMap">
+        SELECT
+        <include refid="baseColumns"/>
+        <include refid="fromClause"/>
+        <where>
+            <if test="status != null">
+                a.status = #{status}
+            </if>
+        </where>
+        ORDER BY a.created_at DESC, a.id DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM article a
+        <where>
+            <if test="status != null">
+                a.status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="articleMap">
+        SELECT
+        <include refid="baseColumns"/>
+        <include refid="fromClause"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="selectTagNames" resultType="string">
+        SELECT t.name
+        FROM tag t
+        INNER JOIN article_tag at ON t.id = at.tag_id
+        WHERE at.article_id = #{articleId}
+        ORDER BY t.id
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO article (title, category_id, summary, content_path, status)
+        VALUES (#{title}, #{categoryId}, #{summary}, #{contentPath}, #{status})
+    </insert>
+
+    <update id="update">
+        UPDATE article
+        SET title = #{title},
+            category_id = #{categoryId},
+            summary = #{summary},
+            content_path = #{contentPath},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM article WHERE id = #{id}
+    </delete>
+
+    <insert id="insertArticleTags">
+        INSERT INTO article_tag (article_id, tag_id)
+        VALUES
+        <foreach collection="tagIds" item="tagId" separator=",">
+            (#{articleId}, #{tagId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteArticleTags">
+        DELETE FROM article_tag WHERE article_id = #{articleId}
+    </delete>
+
+    <update id="incrementViewCount">
+        UPDATE article SET view_count = view_count + 1 WHERE id = #{id}
+    </update>
+
+</mapper>
