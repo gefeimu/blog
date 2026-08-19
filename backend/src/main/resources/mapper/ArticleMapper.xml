@@ -37,6 +37,9 @@
             <if test="status != null">
                 a.status = #{status}
             </if>
+            <if test="categoryId != null">
+                AND a.category_id = #{categoryId}
+            </if>
         </where>
         ORDER BY a.created_at DESC, a.id DESC
         LIMIT #{offset}, #{size}
@@ -48,6 +51,9 @@
         <where>
             <if test="status != null">
                 a.status = #{status}
+            </if>
+            <if test="categoryId != null">
+                AND a.category_id = #{categoryId}
             </if>
         </where>
     </select>

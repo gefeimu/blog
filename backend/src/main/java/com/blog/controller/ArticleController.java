@@ -29,14 +29,15 @@ public class ArticleController {
     @GetMapping
     public PageResult<Article> page(@RequestParam(defaultValue = "1") int page,
                                     @RequestParam(defaultValue = "10") int size,
-                                    @RequestParam(required = false) Integer status) {
+                                    @RequestParam(required = false) Integer status,
+                                    @RequestParam(required = false) Long categoryId) {
         if (page < 1) {
             page = 1;
         }
         if (size < 1 || size > 100) {
             size = 10;
         }
-        return articleService.page(page, size, status);
+        return articleService.page(page, size, status, categoryId);
     }
 
     @GetMapping("/{id}")

@@ -18,12 +18,12 @@ public class ArticleService {
         this.articleMapper = articleMapper;
     }
 
-    public PageResult<Article> page(int page, int size, Integer status) {
+    public PageResult<Article> page(int page, int size, Integer status, Long categoryId) {
         int offset = (page - 1) * size;
-        long total = articleMapper.count(status);
+        long total = articleMapper.count(status, categoryId);
         List<Article> list = total == 0
                 ? Collections.emptyList()
-                : articleMapper.selectPage(offset, size, status);
+                : articleMapper.selectPage(offset, size, status, categoryId);
         return new PageResult<>(total, page, size, list);
     }
 
