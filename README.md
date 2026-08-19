@@ -90,6 +90,7 @@ curl localhost/api/categories      # MySQL 连通（6 条中文分类）
 | POST | `/api/articles` | 新建文章 |
 | PUT | `/api/articles/{id}` | 更新文章 |
 | DELETE | `/api/articles/{id}` | 删除文章 |
+| POST | `/api/upload/image` | 图片上传（multipart，jpg/png/gif/webp，≤5MB），返回 `{url}` |
 
 ## 常用命令
 
@@ -105,8 +106,9 @@ docker compose down -v             # 停掉并删 MySQL 数据（重来）
 - [x] 脚手架：MySQL 8 + Spring Boot 3 + Nginx 反代
 - [x] MyBatis（XML 映射）替换 JdbcTemplate
 - [x] 文章 CRUD（分页/详情/标签关联）
-- [ ] 文章正文 Markdown 文件存储 + 读取
-- [ ] Vue 3 前台（列表/详情渲染）
+- [x] 文章正文 Markdown 文件存储 + 读取
+- [x] Vue 3 前台（列表/详情渲染）
+- [x] 图片上传 + Nginx 静态托管（`/uploads`，存储层已抽象 FileStorageService，可切换 OSS）
 - [ ] 后台管理（登录 + Markdown 编辑器）
 - [ ] GitHub Actions CI/CD
 - [ ] 上云：阿里云 ECS + 域名 + SSL + ICP 备案

@@ -11,6 +11,9 @@ target/
 # Markdown 正文文件（数据，不进入 git）
 markdown/
 
+# 图片上传文件（数据，不进入 git）
+uploads/
+
 # 日志
 *.log
 

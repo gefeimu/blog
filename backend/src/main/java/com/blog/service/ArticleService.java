@@ -14,11 +14,11 @@ import java.util.List;
 public class ArticleService {
 
     private final ArticleMapper articleMapper;
-    private final MarkdownService markdownService;
+    private final FileStorageService fileStorageService;
 
-    public ArticleService(ArticleMapper articleMapper, MarkdownService markdownService) {
+    public ArticleService(ArticleMapper articleMapper, FileStorageService fileStorageService) {
         this.articleMapper = articleMapper;
-        this.markdownService = markdownService;
+        this.fileStorageService = fileStorageService;
     }
 
     public PageResult<Article> page(int page, int size, Integer status, Long categoryId) {
@@ -39,7 +39,7 @@ public class ArticleService {
         articleMapper.incrementViewCount(id);
         article.setViewCount(article.getViewCount() + 1);
         // 读取 markdown 正文
-        article.setContent(markdownService.read(id));
+        article.setContent(fileStorageService.readMarkdown(id));
         return article;
     }
 
@@ -56,10 +56,10 @@ public class ArticleService {
         articleMapper.insert(article);
         saveTags(article.getId(), article.getTagIds());
         // 保存正文 markdown 文件
-        markdownService.save(article.getId(), article.getContent());
+        fileStorageService.saveMarkdown(article.getId(), article.getContent());
         // 回查，返回含分类名/标签/时间的完整实体（带 content）
         Article saved = articleMapper.selectById(article.getId());
-        saved.setContent(markdownService.read(saved.getId()));
+        saved.setContent(fileStorageService.readMarkdown(saved.getId()));
         return saved;
     }
 
@@ -74,10 +74,10 @@ public class ArticleService {
         saveTags(id, article.getTagIds());
         // 更新正文 markdown 文件（content 不为 null 时才覆盖）
         if (article.getContent() != null) {
-            markdownService.save(id, article.getContent());
+            fileStorageService.saveMarkdown(id, article.getContent());
         }
         Article saved = articleMapper.selectById(id);
-        saved.setContent(markdownService.read(id));
+        saved.setContent(fileStorageService.readMarkdown(id));
         return saved;
     }
 
@@ -88,7 +88,7 @@ public class ArticleService {
         }
         articleMapper.deleteArticleTags(id);
         articleMapper.deleteById(id);
-        markdownService.delete(id);
+        fileStorageService.deleteMarkdown(id);
         return true;
     }
 

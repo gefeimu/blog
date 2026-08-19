@@ -7,6 +7,10 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml
@@ -17,6 +21,10 @@ mybatis:
 
 # 博客业务配置
 blog:
-  markdown:
+  storage:
     # Markdown 文件存储目录（容器内路径，通过 docker-compose 挂载到宿主机 ./markdown）
-    dir: /app/markdown
+    markdown-dir: /app/markdown
+    # 图片上传目录（容器内路径，通过 docker-compose 挂载到宿主机 ./uploads，Nginx 同目录只读挂载对外提供访问）
+    upload-dir: /app/uploads
+    # 图片 URL 前缀（与 Nginx location /uploads/ 对应）
+    url-prefix: /uploads
