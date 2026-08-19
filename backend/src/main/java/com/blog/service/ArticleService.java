@@ -5,6 +5,7 @@ import com.blog.entity.Article;
 import com.blog.mapper.ArticleMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,9 +14,11 @@ import java.util.List;
 public class ArticleService {
 
     private final ArticleMapper articleMapper;
+    private final MarkdownService markdownService;
 
-    public ArticleService(ArticleMapper articleMapper) {
+    public ArticleService(ArticleMapper articleMapper, MarkdownService markdownService) {
         this.articleMapper = articleMapper;
+        this.markdownService = markdownService;
     }
 
     public PageResult<Article> page(int page, int size, Integer status, Long categoryId) {
@@ -35,6 +38,8 @@ public class ArticleService {
         // 详情浏览量 +1（列表页访问不加）
         articleMapper.incrementViewCount(id);
         article.setViewCount(article.getViewCount() + 1);
+        // 读取 markdown 正文
+        article.setContent(markdownService.read(id));
         return article;
     }
 
@@ -47,10 +52,15 @@ public class ArticleService {
         if (article.getViewCount() == null) {
             article.setViewCount(0);
         }
+        article.setContentPath(null);
         articleMapper.insert(article);
         saveTags(article.getId(), article.getTagIds());
-        // 回查，返回含分类名/标签/时间的完整实体
-        return articleMapper.selectById(article.getId());
+        // 保存正文 markdown 文件
+        markdownService.save(article.getId(), article.getContent());
+        // 回查，返回含分类名/标签/时间的完整实体（带 content）
+        Article saved = articleMapper.selectById(article.getId());
+        saved.setContent(markdownService.read(saved.getId()));
+        return saved;
     }
 
     @Transactional
@@ -62,7 +72,13 @@ public class ArticleService {
         articleMapper.update(article);
         articleMapper.deleteArticleTags(id);
         saveTags(id, article.getTagIds());
-        return articleMapper.selectById(id);
+        // 更新正文 markdown 文件（content 不为 null 时才覆盖）
+        if (article.getContent() != null) {
+            markdownService.save(id, article.getContent());
+        }
+        Article saved = articleMapper.selectById(id);
+        saved.setContent(markdownService.read(id));
+        return saved;
     }
 
     @Transactional
@@ -72,6 +88,7 @@ public class ArticleService {
         }
         articleMapper.deleteArticleTags(id);
         articleMapper.deleteById(id);
+        markdownService.delete(id);
         return true;
     }
 

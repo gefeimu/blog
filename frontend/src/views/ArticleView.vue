@@ -56,7 +56,7 @@ onMounted(async () => {
 
         <div v-if="html" class="article-content" v-html="html"></div>
         <div v-else class="empty-tip" style="padding: 32px 0">
-          正文待开放（Markdown 正文存储接入后显示）
+          暂无正文
         </div>
       </article>
     </div>

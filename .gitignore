@@ -8,6 +8,9 @@ dist/
 # 后端构建产物
 target/
 
+# Markdown 正文文件（数据，不进入 git）
+markdown/
+
 # 日志
 *.log
 

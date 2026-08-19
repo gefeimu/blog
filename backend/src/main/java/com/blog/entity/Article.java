@@ -13,6 +13,8 @@ public class Article {
     private String summary;
     /** markdown 文件相对路径 */
     private String contentPath;
+    /** 非持久化字段：正文内容（入参/出参） */
+    private String content;
     /** 0草稿 1发布 */
     private Integer status;
     private Integer viewCount;
@@ -69,6 +71,14 @@ public class Article {
 
     public void setContentPath(String contentPath) {
         this.contentPath = contentPath;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public Integer getStatus() {
