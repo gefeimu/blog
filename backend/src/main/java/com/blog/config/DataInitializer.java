@@ -4,7 +4,6 @@ import com.blog.entity.AdminUser;
 import com.blog.mapper.AdminUserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,19 +23,16 @@ public class DataInitializer implements ApplicationRunner {
     private final JdbcTemplate jdbcTemplate;
     private final AdminUserMapper adminUserMapper;
     private final BCryptPasswordEncoder passwordEncoder;
-
-    @Value("${blog.admin.username:admin}")
-    private String defaultUsername;
-
-    @Value("${blog.admin.password:admin123}")
-    private String defaultPassword;
+    private final BlogProperties.Admin admin;
 
     public DataInitializer(JdbcTemplate jdbcTemplate,
                            AdminUserMapper adminUserMapper,
-                           BCryptPasswordEncoder passwordEncoder) {
+                           BCryptPasswordEncoder passwordEncoder,
+                           BlogProperties properties) {
         this.jdbcTemplate = jdbcTemplate;
         this.adminUserMapper = adminUserMapper;
         this.passwordEncoder = passwordEncoder;
+        this.admin = properties.getAdmin();
     }
 
     @Override
@@ -52,13 +48,13 @@ public class DataInitializer implements ApplicationRunner {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='后台管理员'
                 """);
 
-        if (adminUserMapper.selectByUsername(defaultUsername) == null) {
+        if (adminUserMapper.selectByUsername(admin.getUsername()) == null) {
             AdminUser user = new AdminUser();
-            user.setUsername(defaultUsername);
-            user.setPasswordHash(passwordEncoder.encode(defaultPassword));
-            user.setNickname(defaultUsername);
+            user.setUsername(admin.getUsername());
+            user.setPasswordHash(passwordEncoder.encode(admin.getPassword()));
+            user.setNickname(admin.getUsername());
             adminUserMapper.insert(user);
-            log.warn("已创建默认管理员: {} / {}（请尽快登录后台修改密码）", defaultUsername, defaultPassword);
+            log.warn("已创建默认管理员: {} / {}（请尽快登录后台修改密码）", admin.getUsername(), admin.getPassword());
         } else {
             log.info("管理员账号已存在，跳过初始化");
         }

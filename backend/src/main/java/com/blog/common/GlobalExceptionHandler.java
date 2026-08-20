@@ -18,7 +18,14 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    /** 参数校验 / 业务规则错误 -> 400 */
+    /** 业务异常（BizException）-> 按错误码映射状态码 */
+    @ExceptionHandler(BizException.class)
+    public ResponseEntity<Map<String, String>> handleBizException(BizException e) {
+        return ResponseEntity.status(e.getCode().getHttpStatus())
+                .body(Map.of("error", e.getMessage()));
+    }
+
+    /** 参数校验 / 底层规则错误 -> 400 */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleBadRequest(IllegalArgumentException e) {
         return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

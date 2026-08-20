@@ -1,7 +1,8 @@
 package com.blog.controller;
 
 import com.blog.common.PageResult;
-import com.blog.entity.Article;
+import com.blog.dto.ArticleRequest;
+import com.blog.dto.ArticleVO;
 import com.blog.service.ArticleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/articles")
 public class ArticleController {
@@ -27,10 +26,10 @@ public class ArticleController {
     }
 
     @GetMapping
-    public PageResult<Article> page(@RequestParam(defaultValue = "1") int page,
-                                    @RequestParam(defaultValue = "10") int size,
-                                    @RequestParam(required = false) Integer status,
-                                    @RequestParam(required = false) Long categoryId) {
+    public PageResult<ArticleVO> page(@RequestParam(defaultValue = "1") int page,
+                                      @RequestParam(defaultValue = "10") int size,
+                                      @RequestParam(required = false) Integer status,
+                                      @RequestParam(required = false) Long categoryId) {
         if (page < 1) {
             page = 1;
         }
@@ -41,39 +40,23 @@ public class ArticleController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Article> detail(@PathVariable Long id) {
-        Article article = articleService.getById(id);
-        if (article == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(article);
+    public ArticleVO detail(@PathVariable Long id) {
+        return articleService.getById(id);
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Article article) {
-        if (article.getTitle() == null || article.getTitle().isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "title 不能为空"));
-        }
-        return ResponseEntity.ok(articleService.create(article));
+    public ArticleVO create(@RequestBody ArticleRequest request) {
+        return articleService.create(request);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Article article) {
-        if (article.getTitle() == null || article.getTitle().isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "title 不能为空"));
-        }
-        Article updated = articleService.update(id, article);
-        if (updated == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(updated);
+    public ArticleVO update(@PathVariable Long id, @RequestBody ArticleRequest request) {
+        return articleService.update(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        if (!articleService.delete(id)) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        articleService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

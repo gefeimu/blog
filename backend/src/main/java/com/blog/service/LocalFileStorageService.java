@@ -1,9 +1,9 @@
 package com.blog.service;
 
+import com.blog.config.BlogProperties;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,23 +32,20 @@ public class LocalFileStorageService implements FileStorageService {
 
     private static final DateTimeFormatter MONTH_DIR = DateTimeFormatter.ofPattern("yyyy/MM");
 
-    @Value("${blog.storage.markdown-dir:markdown}")
-    private String markdownDir;
-
-    @Value("${blog.storage.upload-dir:uploads}")
-    private String uploadDir;
-
-    @Value("${blog.storage.url-prefix:/uploads}")
-    private String urlPrefix;
+    private final BlogProperties.Storage storage;
 
     private Path markdownPath;
 
     private Path uploadPath;
 
+    public LocalFileStorageService(BlogProperties properties) {
+        this.storage = properties.getStorage();
+    }
+
     @PostConstruct
     public void init() throws IOException {
-        this.markdownPath = Paths.get(markdownDir).toAbsolutePath().normalize();
-        this.uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        this.markdownPath = Paths.get(storage.getMarkdownDir()).toAbsolutePath().normalize();
+        this.uploadPath = Paths.get(storage.getUploadDir()).toAbsolutePath().normalize();
         if (!Files.exists(markdownPath)) {
             Files.createDirectories(markdownPath);
             log.info("创建 markdown 目录: {}", markdownPath);
@@ -87,7 +84,7 @@ public class LocalFileStorageService implements FileStorageService {
         } catch (IOException e) {
             throw new RuntimeException("保存图片失败: " + original, e);
         }
-        String url = urlPrefix + "/" + month + "/" + filename;
+        String url = storage.getUrlPrefix() + "/" + month + "/" + filename;
         log.info("图片已保存: {}", url);
         return url;
     }
