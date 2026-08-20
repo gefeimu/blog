@@ -33,7 +33,7 @@ function onClickTag(tagName: string) {
 
 <template>
   <li class="list-item">
-    <article class="post-card">
+    <article class="post-card" @click="router.push(`/article/${article.id}`)">
       <!-- 左侧日期 + 封面 -->
       <div class="post-date-col">
         <span class="post-date">{{ formattedDate }}</span>
@@ -71,7 +71,7 @@ function onClickTag(tagName: string) {
             :key="t"
             class="post-tag-pill"
             :class="{ 'is-clickable': tagMap?.has(t) }"
-            @click="onClickTag(t)"
+            @click.stop="onClickTag(t)"
           >
             {{ t }}
           </span>
@@ -192,7 +192,7 @@ html.dark .post-cover-fallback {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 2px;
+  margin-top: auto;
 }
 .post-tag-pill {
   display: inline-block;

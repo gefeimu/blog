@@ -158,7 +158,7 @@ onMounted(async () => {
     <!-- 右侧文章列表 -->
     <div class="articles-main">
         <p v-if="!keywordDebounced && !tagId" class="page-description">
-          这里记录我感兴趣的话题，也许是技术、也许是生活、也许是随笔，欢迎阅读和交流。
+          这里记录我感兴趣的话题，也许是技术、也许是生活、也许是随笔。
         </p>
 
         <ul v-if="articles.length" class="list-divider">
