@@ -78,10 +78,12 @@ a:hover {
 .brand:hover {
   color: var(--color-text);
 }
-.brand .brand-logo {
-  width: 28px;
-  height: 28px;
-  color: var(--color-primary);
+.brand .brand-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--color-border);
 }
 
 .nav {

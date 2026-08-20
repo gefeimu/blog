@@ -12,13 +12,6 @@ const navItems = [
   { to: '/projects', label: '项目' },
   { to: '/about', label: '关于' },
 ]
-
-const LogoIcon = `
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-</svg>`
 </script>
 
 <template>
@@ -28,7 +21,7 @@ const LogoIcon = `
       <!-- 顶部水平导航（参考 Tambouille） -->
       <header class="app-topbar">
         <router-link to="/" class="brand" title="回到首页">
-          <span class="brand-logo" v-html="LogoIcon" />
+          <img src="/avatar.png" alt="歌斐木" class="brand-avatar" />
           <span>歌斐木</span>
         </router-link>
 
