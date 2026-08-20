@@ -3,8 +3,10 @@ import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
+import { Picture } from '@element-plus/icons-vue'
 import { getArticle, createArticle, updateArticle } from '../../api/article'
 import { getTags } from '../../api/tag'
+import { uploadImage } from '../../api/upload'
 import { getErrorMessage } from '../../api/request'
 import { useTheme } from '../../composables/useTheme'
 import type { Tag } from '../../types/blog'
@@ -18,7 +20,12 @@ const isEdit = articleId !== null
 
 const saving = ref(false)
 const loading = ref(false)
+const uploading = ref(false)
 const tags = ref<Tag[]>([])
+// 封面图：隐藏 file input + 触发按钮
+const coverInput = ref<HTMLInputElement | null>(null)
+// 与后端 LocalFileStorageService.MAX_IMAGE_SIZE (5MB) 对齐
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024
 
 const form = ref({
   title: '',
@@ -31,6 +38,39 @@ const form = ref({
 })
 
 let vditor: Vditor | null = null
+
+// ---------- 封面图上传 ----------
+const pickCover = () => {
+  coverInput.value?.click()
+}
+
+const onCoverSelected = async (e: Event) => {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  if (file.size > MAX_IMAGE_SIZE) {
+    ElMessage.warning('图片不能超过 5MB')
+    input.value = ''
+    return
+  }
+  uploading.value = true
+  try {
+    const res = await uploadImage(file)
+    form.value.ext.cover = res.url
+    ElMessage.success('上传成功')
+  } catch (err) {
+    ElMessage.error(getErrorMessage(err, '上传失败'))
+  } finally {
+    uploading.value = false
+    // 清 input value，允许重选同一文件
+    input.value = ''
+  }
+}
+
+const clearCover = () => {
+  form.value.ext.cover = ''
+  if (coverInput.value) coverInput.value.value = ''
+}
 
 const initVditor = () => {
   const dark = theme.value === 'dark'
@@ -194,11 +234,28 @@ watch(theme, (t) => {
           </el-col>
           <el-col :span="8">
             <el-form-item label="封面图">
-              <el-input
-                v-model="form.ext.cover"
-                placeholder="图片 URL（横幅布局顶部展示）"
-                clearable
-              />
+              <div class="cover-uploader">
+                <el-button
+                  type="primary"
+                  :icon="Picture"
+                  :loading="uploading"
+                  @click="pickCover"
+                >
+                  {{ form.ext.cover ? '更换图片' : '选择图片' }}
+                </el-button>
+                <input
+                  ref="coverInput"
+                  type="file"
+                  accept="image/*"
+                  style="display: none"
+                  @change="onCoverSelected"
+                />
+                <div v-if="form.ext.cover" class="cover-preview">
+                  <img :src="form.ext.cover" alt="封面预览" />
+                  <el-button link type="danger" size="small" @click="clearCover">移除</el-button>
+                </div>
+                <span v-else class="cover-hint">未选择（横幅布局会在顶部展示）</span>
+              </div>
             </el-form-item>
           </el-col>
         </el-row>
@@ -224,5 +281,31 @@ watch(theme, (t) => {
 }
 .vditor-box {
   width: 100%;
+}
+/* 封面图：按钮 + 预览缩略图 + 移除 */
+.cover-uploader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cover-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 4px;
+  background: var(--el-fill-color-blank);
+}
+.cover-preview img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 3px;
+}
+.cover-hint {
+  color: var(--el-text-color-placeholder);
+  font-size: 12px;
 }
 </style>
