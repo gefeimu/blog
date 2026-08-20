@@ -1,0 +1,57 @@
+# 前端产物自动构建：源码改动推送后自动 build 并回提交新产物到 main
+# 解决「源码改了但产物没重建」导致的部署不生效问题
+#
+# 防循环机制：
+# - 触发条件 paths 限定 frontend/**，自动回提交只改 nginx/html → 不会再次触发
+# - 回提交 message 带 [skip ci] 双保险
+#
+# 手动触发：仓库 Actions 页 → Build Frontend → Run workflow
+
+name: Build Frontend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: cd frontend && npm ci
+
+      - name: Build (vite build 直接输出到 ../nginx/html)
+        run: |
+          rm -rf nginx/html/assets
+          cd frontend && SKIP_DTS=1 npx vite build
+
+      - name: Verify artifacts
+        run: |
+          [ -s nginx/html/index.html ] || { echo "FAIL: index.html 为空"; exit 1; }
+          [ "$(find nginx/html/assets -maxdepth 1 -type f -size 0 | wc -l)" = "0" ] || { echo "FAIL: 存在 0 字节产物"; exit 1; }
+
+      - name: Commit and push artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add nginx/html
+          if ! git diff --cached --quiet; then
+            git commit -m "build: 自动构建前端产物 [skip ci]"
+            git push
+          else
+            echo "产物无变化，跳过提交"
+          fi
