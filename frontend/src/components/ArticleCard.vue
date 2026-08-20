@@ -1,47 +1,94 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { formatDate, calcReadingTime } from '../utils/format'
 import type { ArticleSummary } from '../types/blog'
 
-defineProps<{ article: ArticleSummary }>()
+/**
+ * ArticleSummary 本身不含 cover/ext（详情才有），
+ * 但为了文章卡片的视觉效果，列表场景依然尝试从外部属性兜底取（更稳）。
+ * 没有时显示 emoji/渐变占位。
+ */
+type CoverCapable = ArticleSummary & {
+  cover?: string
+  ext?: { cover?: string }
+}
 
+const props = defineProps<{ article: ArticleSummary }>()
 const router = useRouter()
+
+const coverUrl = computed(() => {
+  const a = props.article as CoverCapable
+  return a.cover || a.ext?.cover || ''
+})
+
+// 列表无日期文字标签时也能美化 fallback：渐变色块 + emoji
+const fallbackEmoji = '📝'
 </script>
 
 <template>
-  <article class="card article-card" @click="router.push(`/article/${article.id}`)">
-    <!-- 标签在上（纯展示，点击标签筛选见标签云页） -->
-    <div v-if="article.tags?.length" class="card-tags">
-      <span v-for="t in article.tags" :key="t" class="tag">{{ t }}</span>
-    </div>
+  <li class="list-item">
+    <article
+      class="post-grid"
+      @click="router.push(`/article/${article.id}`)"
+    >
+      <!-- 左侧封面：有图则图、无图则 fallback -->
+      <div class="post-cover-wrap">
+        <img
+          v-if="coverUrl"
+          :src="coverUrl"
+          :alt="article.title"
+          class="post-cover"
+          loading="lazy"
+          @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+        />
+        <div v-else class="post-cover-fallback">{{ fallbackEmoji }}</div>
+      </div>
 
-    <h2 class="article-title">{{ article.title }}</h2>
+      <!-- 右侧文案 -->
+      <div class="post-body">
+        <h2 class="post-title">
+          <a :href="`/article/${article.id}`" @click.stop>
+            {{ article.title }}
+          </a>
+        </h2>
 
-    <p class="article-summary">
-      {{ article.summary || '（暂无摘要）' }}
-    </p>
+        <div v-if="article.tags?.length" class="post-tags">
+          <span
+            v-for="t in article.tags"
+            :key="t"
+            class="post-tag"
+          >
+            {{ t }}
+          </span>
+        </div>
 
-    <div class="article-meta">
-      <span>{{ formatDate(article.createdAt) }}</span>
-      <span>· 约 {{ calcReadingTime(article.summary) }} 分钟阅读</span>
-      <span>· 浏览 {{ article.viewCount ?? 0 }}</span>
-    </div>
-  </article>
+        <p class="post-summary">
+          {{ article.summary || '（暂无摘要）' }}
+        </p>
+
+        <a
+          class="read-more"
+          :href="`/article/${article.id}`"
+          @click.stop
+        >
+          查看详情 →
+        </a>
+      </div>
+    </article>
+  </li>
 </template>
 
 <style scoped>
-.article-card {
+.post-grid {
   cursor: pointer;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition: transform 0.2s;
 }
-.article-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  border-color: var(--color-primary);
+.post-grid:hover {
+  transform: translateX(2px);
 }
-.card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 8px;
+.post-cover-wrap {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
 }
 </style>

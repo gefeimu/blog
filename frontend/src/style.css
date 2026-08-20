@@ -1,13 +1,18 @@
+/* 主题色变量 - 参考 Tambouille 配色调：蓝（亮）/ 橙（暗） */
 :root {
   --color-bg: #f7f7f5;
   --color-card: #ffffff;
-  --color-text: #2c2c2c;
-  --color-text-light: #8a8a8a;
-  --color-primary: #b8860b;
-  --color-border: #ececec;
+  --color-text: #1f2937; /* text-gray-800 */
+  --color-text-light: #6b7280; /* text-gray-500（与 Tambouille 副文同色） */
+  --color-primary: #3b82f6; /* blue-500 */
+  --color-primary-hover: #2563eb; /* blue-600 */
+  --color-border: #e5e7eb; /* gray-200 */
   --color-code-bg: #282c34;
   --max-width: 1200px;
 }
+
+/* 引入 Inter 字体（参考 Tambouille 站字体：Inter 400/600/700） */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
 * {
   box-sizing: border-box;
@@ -17,7 +22,7 @@
 
 body {
   font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   background: var(--color-bg);
   color: var(--color-text);
@@ -39,71 +44,256 @@ a:hover {
   color: var(--color-primary);
 }
 
-/* ---------- 全局布局：左侧固定导航 + 右侧主区 ---------- */
+/* ---------- 全局布局：顶部横向导航 + 下方主区 ---------- */
 .app-layout {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 
-.app-sidebar {
-  width: 200px;
-  flex-shrink: 0;
-  padding: 32px 24px;
+/* 顶部一行（参考 Tambouille 顶部：左 logo + 中右菜单 + 右月亮） */
+.app-topbar {
+  display: flex;
+  align-items: center;
+  height: 72px;
+  max-width: var(--max-width);
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 32px;
   position: sticky;
   top: 0;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  border-right: 1px solid var(--color-border);
+  background: var(--color-bg);
+  z-index: 10;
 }
 
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.sidebar-nav-item {
-  padding: 8px 0;
-  color: var(--color-text-light);
-  font-size: 14px;
-  transition: color 0.2s;
-}
-.sidebar-nav-item:hover {
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--color-text);
 }
-.sidebar-nav-item.router-link-active {
+.brand:hover {
+  color: var(--color-text);
+}
+.brand .brand-logo {
+  width: 28px;
+  height: 28px;
   color: var(--color-primary);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-left: auto;
+  font-size: 14px;
+}
+.nav-item {
+  color: var(--color-text-light);
+  transition: color 0.2s;
+}
+.nav-item:hover {
+  color: var(--color-text);
+}
+.nav-item.router-link-active {
+  color: var(--color-text);
   font-weight: 600;
+}
+.nav-item.router-link-exact-active {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* 主题切换按钮（参考 Tambouille：圆形透明、月亮图标） */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 20px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #f59e0b; /* amber-500 月亮图标 */
+  cursor: pointer;
+  transition: color 0.2s, transform 0.2s;
+}
+.theme-toggle:hover {
+  color: var(--color-primary);
+  transform: scale(1.08);
 }
 
 .app-main {
   flex: 1;
-  min-width: 0;
-  max-width: 1000px;
-  padding: 0 32px;
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 32px 64px;
 }
 
-.app-topbar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  height: 56px;
-  position: sticky;
-  top: 0;
-  background: var(--color-bg);
-  z-index: 5;
+/* ---------- Hero 区（首页大标题 + 描述）参考 Tambouille hero ---------- */
+.hero-block {
+  padding: 64px 0 32px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--color-border);
 }
-.nickname {
-  font-size: 14px;
+.hero-title {
+  font-size: 60px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
   color: var(--color-text);
-  cursor: pointer;
+  margin-bottom: 16px;
 }
-.nickname:hover {
+.hero-sig {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--color-text-light);
+  max-width: 720px;
+}
+
+/* ---------- 文章列表 - Tambouille 风格：分隔线 + 横向 grid 卡片 ---------- */
+.list-divider {
+  list-style: none;
+  border-top: 1px solid var(--color-border);
+}
+.list-item {
+  padding: 36px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.list-item:hover .post-cover {
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.18);
+}
+.post-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+.post-cover {
+  width: 200px;
+  height: 125px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #e5e7eb;
+  transition: box-shadow 0.2s;
+}
+.post-cover-fallback {
+  width: 200px;
+  height: 125px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 100%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: #94a3b8;
+}
+.post-body {
+  min-width: 0;
+}
+.post-title {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+.post-title a {
+  color: var(--color-text);
+}
+.post-title a:hover {
   color: var(--color-primary);
 }
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.post-tag {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.post-tag:hover {
+  color: var(--color-primary-hover);
+}
+.post-summary {
+  font-size: 15px;
+  color: var(--color-text-light);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+.read-more {
+  display: inline-flex;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+.read-more:hover {
+  color: var(--color-primary-hover);
+}
 
-/* ---------- 卡片 ---------- */
+/* 列表底部"查看全部 →" 右下角链接 */
+.list-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 24px 0 0;
+}
+
+/* 响应式（移动端列表改为上下布局） */
+@media (max-width: 768px) {
+  .app-topbar {
+    height: 60px;
+    padding: 0 16px;
+  }
+  .brand {
+    font-size: 16px;
+  }
+  .nav {
+    gap: 14px;
+    font-size: 13px;
+  }
+  .theme-toggle {
+    margin-left: 8px;
+  }
+  .app-main {
+    padding: 0 16px 48px;
+  }
+  .hero-block {
+    padding: 36px 0 20px;
+  }
+  .hero-title {
+    font-size: 36px;
+  }
+  .post-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .post-cover,
+  .post-cover-fallback {
+    width: 100%;
+    height: 0;
+    padding-bottom: 62.5%;
+    position: relative;
+  }
+  .post-cover {
+    height: auto;
+  }
+  .post-cover-fallback {
+    display: flex;
+  }
+}
+
+/* ---------- 卡片（保留后台管理/关于页等老页面用） ---------- */
 .card {
   background: var(--color-card);
   border: 1px solid var(--color-border);
@@ -143,38 +333,12 @@ a:hover {
   margin-right: 6px;
 }
 
-/* TOC 目录卡片标题（详情页 sticky 目录用） */
 .sidebar-title {
   font-size: 13px;
   font-weight: 700;
   color: var(--color-text-light);
   margin-bottom: 10px;
   letter-spacing: 2px;
-}
-
-@media (max-width: 768px) {
-  .app-layout {
-    flex-direction: column;
-  }
-  .app-sidebar {
-    width: 100%;
-    height: auto;
-    position: static;
-    border-right: none;
-    border-bottom: 1px solid var(--color-border);
-    padding: 12px 20px;
-    flex-direction: row;
-    align-items: center;
-    gap: 16px;
-  }
-  .sidebar-nav {
-    flex-direction: row;
-    gap: 16px;
-    flex: 1;
-  }
-  .app-main {
-    padding: 0 20px;
-  }
 }
 
 /* ---------- 详情页 markdown 正文 ---------- */
@@ -317,7 +481,7 @@ a:hover {
   color: var(--color-primary);
 }
 
-/* 标题 hover 显示 # 锚点链接（markdown-it-anchor permalink） */
+/* 标题 hover 显示 # 锚点链接 */
 .header-anchor {
   opacity: 0;
   margin-left: 8px;
@@ -333,14 +497,15 @@ a:hover {
   opacity: 1;
 }
 
-/* ---------- 暗色模式（html.dark 由 useTheme 切换，Element Plus 变量自带暗色） ---------- */
+/* ---------- 暗色模式 ---------- */
 html.dark {
   --color-bg: #161616;
   --color-card: #1e1e1e;
-  --color-text: #e2e2e2;
-  --color-text-light: #9a9a9a;
-  --color-primary: #d4a72c;
-  --color-border: #343434;
+  --color-text: #e5e7eb; /* gray-200 */
+  --color-text-light: #9ca3af; /* gray-400 */
+  --color-primary: #f97316; /* orange-500（参考 Tambouille 暗色） */
+  --color-primary-hover: #fb923c; /* orange-400 */
+  --color-border: #374151; /* gray-700 */
   --color-code-bg: #0d1117;
 }
 html.dark .article-content th {
@@ -353,9 +518,8 @@ html.dark .tag {
 html.dark .banner-cover {
   background: #2a2a2a;
 }
-html.dark .app-sidebar {
-  background: #0d1220;
-  border-right-color: var(--color-border);
+html.dark .post-cover-fallback {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 html.dark .admin-aside {
   background: #0d1220;

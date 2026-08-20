@@ -5,72 +5,80 @@ import { useTheme } from './composables/useTheme'
 
 const { theme, toggleTheme } = useTheme()
 
-// 左侧固定导航（参考截图布局：左侧导航 + 主区，顶部右角昵称跳首页）
+// 顶部水平导航（参考 Tambouille 顶部：左 logo + 右菜单 + 月亮）
 const navItems = [
   { to: '/articles', label: '博客' },
   { to: '/tags', label: '标签' },
   { to: '/projects', label: '项目' },
   { to: '/about', label: '关于' },
 ]
+
+const LogoIcon = `
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+</svg>`
 </script>
 
 <template>
   <!-- 全局 Element Plus 中文本地化（按需引入模式下替代 app.use(ElementPlus, { locale })） -->
   <el-config-provider :locale="zhCn">
     <div class="app-layout">
-      <!-- 左侧固定导航 -->
-      <aside class="app-sidebar">
-        <nav class="sidebar-nav">
+      <!-- 顶部水平导航（参考 Tambouille） -->
+      <header class="app-topbar">
+        <router-link to="/" class="brand" title="回到首页">
+          <span class="brand-logo" v-html="LogoIcon" />
+          <span>歌斐木</span>
+        </router-link>
+
+        <nav class="nav">
           <router-link
             v-for="item in navItems"
             :key="item.to"
             :to="item.to"
-            class="sidebar-nav-item"
+            class="nav-item"
           >
             {{ item.label }}
           </router-link>
-        </nav>
-        <button
-          class="theme-toggle"
-          :title="theme === 'dark' ? '切换到亮色模式' : '切换到暗色模式'"
-          @click="toggleTheme"
-        >
-          <el-icon :size="18">
-            <Sunny v-if="theme === 'dark'" />
-            <Moon v-else />
-          </el-icon>
-        </button>
-      </aside>
 
-      <!-- 右侧主区：顶部右角昵称 + 内容 -->
-      <div class="app-main">
-        <header class="app-topbar">
-          <router-link to="/" class="nickname" title="回到首页">歌斐木</router-link>
-        </header>
+          <button
+            class="theme-toggle"
+            :title="theme === 'dark' ? '切换到亮色模式' : '切换到暗色模式'"
+            @click="toggleTheme"
+          >
+            <el-icon :size="18">
+              <Sunny v-if="theme === 'dark'" />
+              <Moon v-else />
+            </el-icon>
+          </button>
+        </nav>
+      </header>
+
+      <main class="app-main">
         <router-view />
-      </div>
+      </main>
     </div>
   </el-config-provider>
 </template>
 
 <style scoped>
-/* 主题切换按钮（左侧导航底部） */
+/* 主题切换按钮（顶部最右） */
 .theme-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: 1px solid var(--color-border);
+  border: none;
   border-radius: 50%;
   background: transparent;
-  color: var(--color-text-light);
+  color: #f59e0b;
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
-  margin-top: 24px;
+  transition: color 0.2s, transform 0.2s;
 }
 .theme-toggle:hover {
   color: var(--color-primary);
-  border-color: var(--color-primary);
+  transform: scale(1.08);
 }
 </style>

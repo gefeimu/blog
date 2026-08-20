@@ -64,59 +64,51 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="article-list">
-    <div class="list-header">
-      <div class="page-title">
-        {{ currentTag ? `标签：${currentTag.name}` : '全部文章' }}
-        <span class="page-count">（{{ total }}）</span>
+  <section>
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">
+          {{ currentTag ? `标签：${currentTag.name}` : '博客' }}
+          <span class="page-count">（{{ total }}）</span>
+        </h1>
       </div>
-      <router-link v-if="currentTag" to="/articles" class="clear-filter">
+      <router-link v-if="currentTag" to="/articles" class="read-more">
         ← 查看全部
       </router-link>
     </div>
 
-    <ArticleCard v-for="a in articles" :key="a.id" :article="a" />
+    <ul v-if="articles.length" class="list-divider">
+      <ArticleCard v-for="a in articles" :key="a.id" :article="a" />
+    </ul>
 
     <div v-if="loading" class="loading">加载中...</div>
     <div v-else-if="!articles.length" class="empty-tip">
       {{ currentTag ? `「${currentTag.name}」下还没有文章` : '还没有文章' }}
     </div>
-    <div
-      v-else-if="hasMore"
-      class="load-more"
-      @click="loadMore"
-    >
+    <div v-else-if="hasMore" class="load-more" @click="loadMore">
       加载更多
     </div>
   </section>
 </template>
 
 <style scoped>
-.article-list {
-  padding: 32px 0 48px;
-}
-.list-header {
+.page-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 16px;
+  padding: 36px 0 12px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 0;
 }
 .page-count {
   color: var(--color-text-light);
   font-weight: 400;
   font-size: 14px;
 }
-.clear-filter {
-  font-size: 13px;
-  color: var(--color-text-light);
-}
-.clear-filter:hover {
-  color: var(--color-primary);
-}
 .load-more {
   text-align: center;
   color: var(--color-text-light);
-  padding: 24px 0;
+  padding: 32px 0;
   font-size: 14px;
   cursor: pointer;
 }

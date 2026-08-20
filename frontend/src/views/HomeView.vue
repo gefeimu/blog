@@ -1,63 +1,58 @@
 <script setup lang="ts">
-// 首页 hero 区：左侧大字 + signature，右侧圆形头像
+import { ref, onMounted } from 'vue'
+import { getArticles } from '../api/article'
+import type { ArticleSummary } from '../types/blog'
+import ArticleCard from '../components/ArticleCard.vue'
+
+const articles = ref<ArticleSummary[]>([])
+const loading = ref(true)
+
+// 首页只展示最近 5 篇（参考 Tambouille 列表截断节奏）
+const PREVIEW_SIZE = 5
+
+onMounted(async () => {
+  try {
+    const data = await getArticles({
+      page: 1,
+      size: PREVIEW_SIZE,
+      status: 1,
+    })
+    articles.value = data.list
+  } catch (e) {
+    console.error(e)
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <template>
-  <section class="hero">
-    <div class="hero-text">
+  <section>
+    <!-- Hero 区：保留个人风格 + Tambouille 的标题样式 -->
+    <div class="hero-block">
       <h1 class="hero-title">Hi，我是歌斐木</h1>
       <p class="hero-sig">
         May your coffee be strong and your bugs be few.
       </p>
     </div>
-    <img src="/avatar.png" alt="歌斐木" class="hero-avatar" />
+
+    <!-- 最新文章列表 -->
+    <ul v-if="articles.length" class="list-divider">
+      <ArticleCard
+        v-for="a in articles"
+        :key="a.id"
+        :article="a"
+      />
+    </ul>
+
+    <div v-else-if="loading" class="loading">加载中...</div>
+    <div v-else class="empty-tip">还没有文章</div>
+
+    <!-- 右下角"查看全部 →" -->
+    <div v-if="articles.length" class="list-footer">
+      <router-link to="/articles" class="read-more">
+        查看全部 →
+      </router-link>
+    </div>
   </section>
 </template>
-
-<style scoped>
-.hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 48px;
-  align-items: center;
-  padding: 80px 0 64px;
-}
-.hero-text {
-  min-width: 0;
-}
-.hero-title {
-  font-size: 44px;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.5px;
-  margin-bottom: 16px;
-}
-.hero-sig {
-  font-size: 16px;
-  color: var(--color-text-light);
-  line-height: 1.6;
-}
-.hero-avatar {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid var(--color-border);
-}
-
-@media (max-width: 768px) {
-  .hero {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
-    padding: 40px 0;
-  }
-  .hero-title {
-    font-size: 32px;
-  }
-  .hero-avatar {
-    width: 140px;
-    height: 140px;
-  }
-}
-</style>
