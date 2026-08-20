@@ -61,10 +61,6 @@ function onClickTag(tagName: string) {
           </a>
         </h2>
 
-        <p class="post-preview">
-          {{ article.summary || '（暂无摘要）' }}
-        </p>
-
         <div v-if="article.tags?.length" class="post-tags">
           <span
             v-for="t in article.tags"
@@ -76,6 +72,10 @@ function onClickTag(tagName: string) {
             {{ t }}
           </span>
         </div>
+
+        <p class="post-preview">
+          {{ article.summary || '（暂无摘要）' }}
+        </p>
       </div>
 
       <!-- 右侧 Read more -->
@@ -192,7 +192,6 @@ html.dark .post-cover-fallback {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: auto;
 }
 .post-tag-pill {
   display: inline-block;
