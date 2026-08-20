@@ -30,7 +30,8 @@ let vditor = null
 
 const initVditor = () => {
   vditor = new Vditor('vditor', {
-    height: 520,
+    height: 'calc(100vh - 420px)',
+    minHeight: 360,
     mode: 'ir',
     placeholder: '开始写作…（支持 Markdown，可拖拽/粘贴上传图片）',
     cache: { enable: false },
@@ -74,7 +75,6 @@ const loadArticle = async () => {
     if (vditor) {
       vditor.setValue(res.content || '')
     } else {
-      // vditor 尚未就绪，延迟到 onMounted 后设置
       setTimeout(() => vditor?.setValue(res.content || ''), 0)
     }
   } catch (e) {
@@ -138,20 +138,28 @@ onUnmounted(() => {
 
 <template>
   <div v-loading="loading">
-    <el-page-header :content="isEdit ? '编辑文章' : '写文章'" @back="router.push('/admin/articles')" />
+    <el-card shadow="never" class="admin-page-card">
+      <el-page-header :content="isEdit ? '编辑文章' : '写文章'" @back="router.push('/admin/articles')" />
+    </el-card>
 
-    <el-card shadow="never" class="form-card">
+    <el-card shadow="never" class="admin-page-card form-card">
       <el-form label-width="70px">
-        <el-form-item label="标题" required>
-          <el-input v-model="form.title" placeholder="文章标题" maxlength="200" show-word-limit />
-        </el-form-item>
-        <el-form-item label="分类" required>
-          <el-select v-model="form.categoryId" placeholder="选择分类" style="width: 220px">
-            <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.id" />
-          </el-select>
-        </el-form-item>
+        <el-row :gutter="24">
+          <el-col :span="16">
+            <el-form-item label="标题" required>
+              <el-input v-model="form.title" placeholder="文章标题" maxlength="200" show-word-limit />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="分类" required>
+              <el-select v-model="form.categoryId" placeholder="选择分类" style="width: 100%">
+                <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.id" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="标签">
-          <el-select v-model="form.tagIds" multiple placeholder="选择标签（可多选）" style="width: 360px">
+          <el-select v-model="form.tagIds" multiple placeholder="选择标签（可多选）" style="width: 100%; max-width: 560px">
             <el-option v-for="t in tags" :key="t.id" :label="t.name" :value="t.id" />
           </el-select>
         </el-form-item>
@@ -171,7 +179,7 @@ onUnmounted(() => {
             <el-radio :value="0">草稿</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="正文">
+        <el-form-item label="正文" class="vditor-form-item">
           <div id="vditor" class="vditor-box" />
         </el-form-item>
         <el-form-item>
@@ -186,7 +194,10 @@ onUnmounted(() => {
 
 <style scoped>
 .form-card {
-  margin-top: 16px;
+  min-height: calc(100vh - 116px);
+}
+.vditor-form-item :deep(.el-form-item__content) {
+  display: block;
 }
 .vditor-box {
   width: 100%;

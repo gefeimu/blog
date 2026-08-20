@@ -77,18 +77,19 @@ onMounted(load)
 
 <template>
   <div>
-    <el-card shadow="never">
-      <div class="toolbar">
+    <el-card shadow="never" class="admin-page-card">
+      <div class="page-header">
+        <span class="page-title">分类管理</span>
         <el-button type="primary" :icon="Plus" @click="openCreate">新增分类</el-button>
       </div>
       <el-table v-loading="loading" :data="list" stripe>
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="分类名" min-width="160" />
+        <el-table-column prop="name" label="分类名" min-width="200" />
         <el-table-column prop="sort" label="排序" width="100" />
         <el-table-column label="创建时间" width="180">
           <template #default="{ row }">{{ row.createdAt?.replace('T', ' ') }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="140">
+        <el-table-column label="操作" width="140" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" @click="openEdit(row)">编辑</el-button>
             <el-button link type="danger" @click="onDelete(row)">删除</el-button>
@@ -116,8 +117,16 @@ onMounted(load)
 </template>
 
 <style scoped>
-.toolbar {
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
+}
+.page-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
 }
 .sort-tip {
   margin-left: 8px;

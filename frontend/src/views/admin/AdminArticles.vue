@@ -36,6 +36,11 @@ const onSearch = () => {
   load()
 }
 
+const onReset = () => {
+  query.value = { page: 1, size: 10, keyword: '', status: '', categoryId: '' }
+  load()
+}
+
 const onEdit = (row) => router.push(`/admin/articles/${row.id}/edit`)
 
 const onDelete = async (row) => {
@@ -49,7 +54,6 @@ const onDelete = async (row) => {
   try {
     await deleteArticle(row.id)
     ElMessage.success('已删除')
-    // 当前页删空则回退一页
     if (list.value.length === 1 && query.value.page > 1) {
       query.value.page -= 1
     }
@@ -71,42 +75,46 @@ onMounted(async () => {
 
 <template>
   <div>
-    <el-card shadow="never">
+    <el-card shadow="never" class="admin-page-card">
+      <div class="page-header">
+        <span class="page-title">文章管理</span>
+        <el-button type="primary" @click="router.push('/admin/articles/new')">写文章</el-button>
+      </div>
       <el-form inline class="filter-form">
         <el-form-item label="标题">
           <el-input
             v-model="query.keyword"
             placeholder="搜索标题"
             clearable
-            style="width: 200px"
+            style="width: 240px"
             @keyup.enter="onSearch"
             @clear="onSearch"
           />
         </el-form-item>
         <el-form-item label="分类">
-          <el-select v-model="query.categoryId" placeholder="全部分类" clearable style="width: 140px" @change="onSearch">
+          <el-select v-model="query.categoryId" placeholder="全部分类" clearable style="width: 160px" @change="onSearch">
             <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="query.status" placeholder="全部状态" clearable style="width: 120px" @change="onSearch">
+          <el-select v-model="query.status" placeholder="全部状态" clearable style="width: 130px" @change="onSearch">
             <el-option label="已发布" :value="1" />
             <el-option label="草稿" :value="0" />
           </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSearch">查询</el-button>
-          <el-button @click="router.push('/admin/articles/new')">写文章</el-button>
+          <el-button @click="onReset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
-    <el-card shadow="never" class="table-card">
+    <el-card shadow="never" class="admin-page-card">
       <el-table v-loading="loading" :data="list" stripe>
         <el-table-column prop="id" label="ID" width="70" />
-        <el-table-column prop="title" label="标题" min-width="220" show-overflow-tooltip />
-        <el-table-column prop="categoryName" label="分类" width="110" />
-        <el-table-column label="标签" width="160">
+        <el-table-column prop="title" label="标题" min-width="260" show-overflow-tooltip />
+        <el-table-column prop="categoryName" label="分类" width="120" />
+        <el-table-column label="标签" min-width="180">
           <template #default="{ row }">
             <el-tag v-for="t in row.tags || []" :key="t" size="small" class="tag-item">{{ t }}</el-tag>
           </template>
@@ -118,8 +126,8 @@ onMounted(async () => {
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="viewCount" label="浏览" width="80" />
-        <el-table-column label="创建时间" width="160">
+        <el-table-column prop="viewCount" label="浏览" width="90" />
+        <el-table-column label="创建时间" width="170">
           <template #default="{ row }">{{ formatDate(row.createdAt) }}</template>
         </el-table-column>
         <el-table-column label="操作" width="130" fixed="right">
@@ -144,11 +152,19 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.page-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
 .filter-form {
   margin-bottom: -18px;
-}
-.table-card {
-  margin-top: 16px;
 }
 .tag-item {
   margin-right: 4px;

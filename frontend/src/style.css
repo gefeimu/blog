@@ -6,7 +6,7 @@
   --color-primary: #b8860b;
   --color-border: #ececec;
   --color-code-bg: #282c34;
-  --max-width: 960px;
+  --max-width: 1200px;
 }
 
 * {
@@ -247,4 +247,14 @@ a:hover {
   font-size: 16px;
   font-weight: 700;
   margin-bottom: 16px;
+}
+
+/* 后台管理通用 */
+.admin-page-card {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+}
+.admin-page-card .el-card__body {
+  padding: 20px 24px;
 }
