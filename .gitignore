@@ -12,11 +12,11 @@ frontend/src/components.d.ts
 # 后端构建产物
 target/
 
-# Markdown 正文文件（数据，不进入 git）
-markdown/
+# Markdown 正文文件（数据，不进入 git；只忽略仓库根目录，避免误伤 java 包路径）
+/markdown/
 
-# 图片上传文件（数据，不进入 git）
-uploads/
+# 图片上传文件（数据，不进入 git；只忽略仓库根目录）
+/uploads/
 
 # 日志
 *.log
