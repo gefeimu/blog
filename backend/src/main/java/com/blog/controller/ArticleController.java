@@ -29,14 +29,15 @@ public class ArticleController {
     public PageResult<ArticleVO> page(@RequestParam(defaultValue = "1") int page,
                                       @RequestParam(defaultValue = "10") int size,
                                       @RequestParam(required = false) Integer status,
-                                      @RequestParam(required = false) Long categoryId) {
+                                      @RequestParam(required = false) Long categoryId,
+                                      @RequestParam(required = false) Long tagId) {
         if (page < 1) {
             page = 1;
         }
         if (size < 1 || size > 100) {
             size = 10;
         }
-        return articleService.page(page, size, status, categoryId);
+        return articleService.page(page, size, status, categoryId, tagId);
     }
 
     @GetMapping("/{id}")

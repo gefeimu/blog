@@ -3,7 +3,9 @@
  * 前端所有页面/组件/API 层共享，改动一处全局生效
  */
 
-/** 分类 */
+/**
+ * 分类（前台已移除分类入口，类型保留供后台管理页使用）
+ */
 export interface Category {
   id: number
   name: string
@@ -11,10 +13,12 @@ export interface Category {
   createdAt: string
 }
 
-/** 标签（后台编辑页下拉） */
+/** 标签（标签云展示，count 为已发布文章数） */
 export interface Tag {
   id: number
   name: string
+  count?: number
+  createdAt?: string
 }
 
 /** 文章扩展字段（DB ext JSON 列） */
@@ -63,12 +67,13 @@ export interface ArticleQuery {
   keyword?: string
   status?: number | string
   categoryId?: number | string
+  tagId?: number | string
 }
 
 /** 文章创建/更新入参 */
 export interface ArticlePayload {
   title: string
-  categoryId: number
+  categoryId: number | null
   tagIds?: number[]
   summary?: string
   status: number
@@ -84,7 +89,7 @@ export interface LoginResult {
   nickname?: string
 }
 
-/** 分类创建/更新入参 */
+/** 分类创建/更新入参（后台管理用） */
 export interface CategoryPayload {
   name: string
   sort: number

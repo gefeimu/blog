@@ -3,11 +3,21 @@ import type { RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 
 const routes: RouteRecordRaw[] = [
+  // 文章列表（全部）
   { path: '/', name: 'home', component: HomeView },
+  // 按标签筛选文章（复用 HomeView，通过路由参数 tagId 区分）
+  { path: '/tag/:id', name: 'tag-articles', component: HomeView, props: true },
+  // 标签云
   {
-    path: '/category/:id',
-    name: 'category',
-    component: () => import('../views/CategoryView.vue'),
+    path: '/tags',
+    name: 'tags',
+    component: () => import('../views/TagsView.vue'),
+  },
+  // 关于
+  {
+    path: '/about',
+    name: 'about',
+    component: () => import('../views/AboutView.vue'),
   },
   {
     path: '/article/:id',

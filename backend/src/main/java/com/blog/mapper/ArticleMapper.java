@@ -12,10 +12,12 @@ public interface ArticleMapper {
     List<Article> selectPage(@Param("offset") int offset,
                              @Param("size") int size,
                              @Param("status") Integer status,
-                             @Param("categoryId") Long categoryId);
+                             @Param("categoryId") Long categoryId,
+                             @Param("tagId") Long tagId);
 
     long count(@Param("status") Integer status,
-               @Param("categoryId") Long categoryId);
+               @Param("categoryId") Long categoryId,
+               @Param("tagId") Long tagId);
 
     Article selectById(Long id);
 

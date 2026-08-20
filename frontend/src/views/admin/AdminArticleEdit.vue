@@ -4,10 +4,9 @@ import { useRoute, useRouter } from 'vue-router'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 import { getArticle, getTags, createArticle, updateArticle } from '../../api/article'
-import { getCategories } from '../../api/category'
 import { getErrorMessage } from '../../api/request'
 import { useTheme } from '../../composables/useTheme'
-import type { Category, Tag } from '../../types/blog'
+import type { Tag } from '../../types/blog'
 
 const route = useRoute()
 const router = useRouter()
@@ -18,7 +17,6 @@ const isEdit = articleId !== null
 
 const saving = ref(false)
 const loading = ref(false)
-const categories = ref<Category[]>([])
 const tags = ref<Tag[]>([])
 
 const form = ref({
@@ -76,7 +74,7 @@ const loadArticle = async () => {
   try {
     const res = await getArticle(articleId as number)
     form.value.title = res.title
-    form.value.categoryId = res.categoryId
+    form.value.categoryId = null
     form.value.tagIds = res.tagIds || []
     form.value.summary = res.summary || ''
     form.value.status = res.status
@@ -97,10 +95,6 @@ const loadArticle = async () => {
 const onSave = async (status: number | null) => {
   if (!form.value.title.trim()) {
     ElMessage.warning('请输入标题')
-    return
-  }
-  if (!form.value.categoryId) {
-    ElMessage.warning('请选择分类')
     return
   }
   const payload = {
@@ -132,11 +126,9 @@ const onSave = async (status: number | null) => {
 
 onMounted(async () => {
   try {
-    const [c, t] = await Promise.all([getCategories(), getTags()])
-    categories.value = c
-    tags.value = t
+    tags.value = await getTags()
   } catch {
-    /* 分类/标签加载失败不阻塞 */
+    /* 标签加载失败不阻塞 */
   }
   initVditor()
   if (isEdit) {
@@ -163,20 +155,9 @@ watch(theme, (t) => {
 
     <el-card shadow="never" class="admin-page-card form-card">
       <el-form label-width="70px">
-        <el-row :gutter="24">
-          <el-col :span="16">
-            <el-form-item label="标题" required>
-              <el-input v-model="form.title" placeholder="文章标题" maxlength="200" show-word-limit />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="分类" required>
-              <el-select v-model="form.categoryId" placeholder="选择分类" style="width: 100%">
-                <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.id" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
+        <el-form-item label="标题" required>
+          <el-input v-model="form.title" placeholder="文章标题" maxlength="200" show-word-limit />
+        </el-form-item>
         <el-form-item label="标签">
           <el-select v-model="form.tagIds" multiple placeholder="选择标签（可多选）" style="width: 100%; max-width: 560px">
             <el-option v-for="t in tags" :key="t.id" :label="t.name" :value="t.id" />

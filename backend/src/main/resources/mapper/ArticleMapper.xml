@@ -43,6 +43,12 @@
             <if test="categoryId != null">
                 AND a.category_id = #{categoryId}
             </if>
+            <if test="tagId != null">
+                AND EXISTS (
+                    SELECT 1 FROM article_tag at2
+                    WHERE at2.article_id = a.id AND at2.tag_id = #{tagId}
+                )
+            </if>
         </where>
         ORDER BY a.created_at DESC, a.id DESC
         LIMIT #{offset}, #{size}
@@ -57,6 +63,12 @@
             </if>
             <if test="categoryId != null">
                 AND a.category_id = #{categoryId}
+            </if>
+            <if test="tagId != null">
+                AND EXISTS (
+                    SELECT 1 FROM article_tag at3
+                    WHERE at3.article_id = a.id AND at3.tag_id = #{tagId}
+                )
             </if>
         </where>
     </select>

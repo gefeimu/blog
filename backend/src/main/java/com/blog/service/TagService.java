@@ -1,6 +1,6 @@
 package com.blog.service;
 
-import com.blog.entity.Tag;
+import com.blog.dto.TagVO;
 import com.blog.mapper.TagMapper;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ public class TagService {
         this.tagMapper = tagMapper;
     }
 
-    public List<Tag> list() {
-        return tagMapper.selectAll();
+    public List<TagVO> list() {
+        return tagMapper.selectAllWithCount();
     }
 }

@@ -1,38 +1,33 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { Sunny, Moon } from '@element-plus/icons-vue'
-import { getCategories } from './api/category'
 import { useTheme } from './composables/useTheme'
-import type { Category } from './types/blog'
 
-const categories = ref<Category[]>([])
 const { theme, toggleTheme } = useTheme()
 
-onMounted(async () => {
-  try {
-    categories.value = await getCategories()
-  } catch (e) {
-    // 分类拉取失败不阻塞页面
-    console.error(e)
-  }
-})
+// 顶部导航 tab：文章 / 标签 / 关于（分类已移除）
+const navItems = ref([
+  { to: '/', label: '文章' },
+  { to: '/tags', label: '标签' },
+  { to: '/about', label: '关于' },
+])
 </script>
 
 <template>
-  <!-- 全局 Element Plus 中文本地化（按需引入模式下替代 app.use(ElementPlus, { locale })） -->
+  <!-- 全局 Element Plus 中文本地化（按需引入模式下替代 app.use(ElementPlus, { locale }) -->
   <el-config-provider :locale="zhCn">
     <header class="site-header">
       <div class="container">
         <router-link to="/" class="site-title">白工的博客</router-link>
         <nav class="site-nav">
-          <router-link to="/">首页</router-link>
           <router-link
-            v-for="c in categories"
-            :key="c.id"
-            :to="`/category/${c.id}`"
+            v-for="item in navItems"
+            :key="item.to"
+            :to="item.to"
+            class="nav-tab"
           >
-            {{ c.name }}
+            {{ item.label }}
           </router-link>
         </nav>
         <button

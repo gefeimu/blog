@@ -1,6 +1,6 @@
 package com.blog.controller;
 
-import com.blog.entity.Tag;
+import com.blog.dto.TagVO;
 import com.blog.service.TagService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +17,7 @@ public class TagController {
     }
 
     @GetMapping("/api/tags")
-    public List<Tag> list() {
+    public List<TagVO> list() {
         return tagService.list();
     }
 }
