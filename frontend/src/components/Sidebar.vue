@@ -1,7 +1,7 @@
-<script setup>
-defineProps({
-  categories: { type: Array, default: () => [] },
-})
+<script setup lang="ts">
+import type { Category } from '../types/blog'
+
+defineProps<{ categories?: Category[] }>()
 </script>
 
 <template>

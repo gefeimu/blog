@@ -1,10 +1,12 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 import { getArticle, getTags, createArticle, updateArticle } from '../../api/article'
 import { getCategories } from '../../api/category'
+import { getErrorMessage } from '../../api/request'
+import type { Category, Tag } from '../../types/blog'
 
 const route = useRoute()
 const router = useRouter()
@@ -14,20 +16,20 @@ const isEdit = articleId !== null
 
 const saving = ref(false)
 const loading = ref(false)
-const categories = ref([])
-const tags = ref([])
+const categories = ref<Category[]>([])
+const tags = ref<Tag[]>([])
 
 const form = ref({
   title: '',
-  categoryId: null,
-  tagIds: [],
+  categoryId: null as number | null,
+  tagIds: [] as number[],
   summary: '',
   status: 1,
   layout: 'default',
   ext: { cover: '' },
 })
 
-let vditor = null
+let vditor: Vditor | null = null
 
 const initVditor = () => {
   vditor = new Vditor('vditor', {
@@ -67,7 +69,7 @@ const initVditor = () => {
 const loadArticle = async () => {
   loading.value = true
   try {
-    const res = await getArticle(articleId)
+    const res = await getArticle(articleId as number)
     form.value.title = res.title
     form.value.categoryId = res.categoryId
     form.value.tagIds = res.tagIds || []
@@ -81,13 +83,13 @@ const loadArticle = async () => {
       setTimeout(() => vditor?.setValue(res.content || ''), 0)
     }
   } catch (e) {
-    ElMessage.error(e.message || '加载文章失败')
+    ElMessage.error(getErrorMessage(e, '加载文章失败'))
   } finally {
     loading.value = false
   }
 }
 
-const onSave = async (status) => {
+const onSave = async (status: number | null) => {
   if (!form.value.title.trim()) {
     ElMessage.warning('请输入标题')
     return
@@ -117,7 +119,7 @@ const onSave = async (status) => {
     ElMessage.success('保存成功')
     router.push('/admin/articles')
   } catch (e) {
-    ElMessage.error(e.message || '保存失败')
+    ElMessage.error(getErrorMessage(e, '保存失败'))
   } finally {
     saving.value = false
   }

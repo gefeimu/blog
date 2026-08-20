@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
 import { Document, FolderOpened, EditPen, SwitchButton, ArrowLeftBold } from '@element-plus/icons-vue'
 

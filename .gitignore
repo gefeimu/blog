@@ -5,6 +5,10 @@
 node_modules/
 dist/
 
+# unplugin 自动生成的类型声明（构建时自动重新生成）
+frontend/src/auto-imports.d.ts
+frontend/src/components.d.ts
+
 # 后端构建产物
 target/
 

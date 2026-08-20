@@ -1,12 +1,13 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getArticles } from '../api/article'
 import { getCategories } from '../api/category'
+import type { ArticleSummary, Category } from '../types/blog'
 import ArticleCard from '../components/ArticleCard.vue'
 import Sidebar from '../components/Sidebar.vue'
 
-const articles = ref([])
-const categories = ref([])
+const articles = ref<ArticleSummary[]>([])
+const categories = ref<Category[]>([])
 const total = ref(0)
 const loading = ref(true)
 const page = ref(1)

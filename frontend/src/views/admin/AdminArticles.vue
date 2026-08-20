@@ -1,22 +1,24 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getArticles, deleteArticle } from '../../api/article'
 import { getCategories } from '../../api/category'
+import { getErrorMessage } from '../../api/request'
 import { formatDate } from '../../utils/format'
+import type { ArticleQuery, ArticleSummary, Category } from '../../types/blog'
 
 const router = useRouter()
 
 const loading = ref(false)
-const list = ref([])
+const list = ref<ArticleSummary[]>([])
 const total = ref(0)
 const query = ref({ page: 1, size: 10, keyword: '', status: '', categoryId: '' })
-const categories = ref([])
+const categories = ref<Category[]>([])
 
 const load = async () => {
   loading.value = true
   try {
-    const params = { page: query.value.page, size: query.value.size }
+    const params: ArticleQuery = { page: query.value.page, size: query.value.size }
     if (query.value.keyword) params.keyword = query.value.keyword
     if (query.value.status !== '') params.status = query.value.status
     if (query.value.categoryId) params.categoryId = query.value.categoryId
@@ -24,7 +26,7 @@ const load = async () => {
     list.value = res.list
     total.value = res.total
   } catch (e) {
-    ElMessage.error(e.message || '加载失败')
+    ElMessage.error(getErrorMessage(e, '加载失败'))
   } finally {
     loading.value = false
   }
@@ -40,9 +42,9 @@ const onReset = () => {
   load()
 }
 
-const onEdit = (row) => router.push(`/admin/articles/${row.id}/edit`)
+const onEdit = (row: ArticleSummary) => router.push(`/admin/articles/${row.id}/edit`)
 
-const onDelete = async (row) => {
+const onDelete = async (row: ArticleSummary) => {
   try {
     await ElMessageBox.confirm(`确定删除「${row.title}」吗？删除后不可恢复`, '删除确认', {
       type: 'warning',
@@ -58,7 +60,7 @@ const onDelete = async (row) => {
     }
     load()
   } catch (e) {
-    ElMessage.error(e.message || '删除失败')
+    ElMessage.error(getErrorMessage(e, '删除失败'))
   }
 }
 
@@ -131,8 +133,8 @@ onMounted(async () => {
         </el-table-column>
         <el-table-column label="操作" width="130" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="onEdit(row)">编辑</el-button>
-            <el-button link type="danger" @click="onDelete(row)">删除</el-button>
+            <el-button link type="primary" @click="onEdit(row as ArticleSummary)">编辑</el-button>
+            <el-button link type="danger" @click="onDelete(row as ArticleSummary)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

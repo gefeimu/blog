@@ -1,10 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { formatDate } from '../utils/format'
+import type { ArticleSummary } from '../types/blog'
 
-const props = defineProps({
-  article: { type: Object, required: true },
-})
+defineProps<{ article: ArticleSummary }>()
 
 const router = useRouter()
 </script>

@@ -1,11 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import { formatDate } from '../../utils/format'
+import type { ArticleDetail } from '../../types/blog'
 
-const props = defineProps({
-  article: { type: Object, required: true },
-  html: { type: String, default: '' },
-})
+const props = defineProps<{ article: ArticleDetail; html?: string }>()
 
 // 横幅封面图：ext.cover（扩展字段 JSON，编辑页可填）
 const cover = computed(() => props.article?.ext?.cover || '')

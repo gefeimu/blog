@@ -1,9 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { getCategories } from './api/category'
+import type { Category } from './types/blog'
 
-const categories = ref([])
+const categories = ref<Category[]>([])
 
 onMounted(async () => {
   try {

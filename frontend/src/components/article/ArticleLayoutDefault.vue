@@ -1,10 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import { formatDate } from '../../utils/format'
+import type { ArticleDetail } from '../../types/blog'
 
-defineProps({
-  article: { type: Object, required: true },
-  html: { type: String, default: '' },
-})
+defineProps<{ article: ArticleDetail; html?: string }>()
 </script>
 
 <template>

@@ -1,16 +1,17 @@
-<script setup>
+<script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getArticles } from '../api/article'
 import { getCategory } from '../api/category'
+import type { ArticleSummary, Category } from '../types/blog'
 import ArticleCard from '../components/ArticleCard.vue'
 import Sidebar from '../components/Sidebar.vue'
 
 const route = useRoute()
-const categoryId = ref(route.params.id)
-const category = ref(null)
-const articles = ref([])
-const categories = ref([])
+const categoryId = ref<string>(String(route.params.id))
+const category = ref<Category | null>(null)
+const articles = ref<ArticleSummary[]>([])
+const categories = ref<Category[]>([])
 const total = ref(0)
 const loading = ref(true)
 const page = ref(1)
@@ -44,7 +45,7 @@ function loadMore() {
 watch(
   () => route.params.id,
   (id) => {
-    categoryId.value = id
+    categoryId.value = String(id)
     load(true)
     loadCategory()
   }

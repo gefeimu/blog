@@ -1,14 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../../api/category'
+import { getErrorMessage } from '../../api/request'
+import type { Category, CategoryPayload } from '../../types/blog'
 
-const list = ref([])
+const list = ref<Category[]>([])
 const loading = ref(false)
 
 const dialogVisible = ref(false)
-const editingId = ref(null)
-const form = ref({ name: '', sort: 0 })
+const editingId = ref<number | null>(null)
+const form = ref<CategoryPayload>({ name: '', sort: 0 })
 const saving = ref(false)
 
 const load = async () => {
@@ -16,7 +18,7 @@ const load = async () => {
   try {
     list.value = await getCategories()
   } catch (e) {
-    ElMessage.error(e.message || '加载失败')
+    ElMessage.error(getErrorMessage(e, '加载失败'))
   } finally {
     loading.value = false
   }
@@ -28,7 +30,7 @@ const openCreate = () => {
   dialogVisible.value = true
 }
 
-const openEdit = (row) => {
+const openEdit = (row: Category) => {
   editingId.value = row.id
   form.value = { name: row.name, sort: row.sort }
   dialogVisible.value = true
@@ -50,13 +52,13 @@ const onSave = async () => {
     dialogVisible.value = false
     load()
   } catch (e) {
-    ElMessage.error(e.message || '保存失败')
+    ElMessage.error(getErrorMessage(e, '保存失败'))
   } finally {
     saving.value = false
   }
 }
 
-const onDelete = async (row) => {
+const onDelete = async (row: Category) => {
   try {
     await ElMessageBox.confirm(`确定删除分类「${row.name}」吗？`, '删除确认', { type: 'warning' })
   } catch {
@@ -67,7 +69,7 @@ const onDelete = async (row) => {
     ElMessage.success('已删除')
     load()
   } catch (e) {
-    ElMessage.error(e.message || '删除失败')
+    ElMessage.error(getErrorMessage(e, '删除失败'))
   }
 }
 
@@ -90,8 +92,8 @@ onMounted(load)
         </el-table-column>
         <el-table-column label="操作" width="140" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="openEdit(row)">编辑</el-button>
-            <el-button link type="danger" @click="onDelete(row)">删除</el-button>
+            <el-button link type="primary" @click="openEdit(row as Category)">编辑</el-button>
+            <el-button link type="danger" @click="onDelete(row as Category)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

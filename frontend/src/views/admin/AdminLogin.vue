@@ -1,7 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { login } from '../../api/auth'
+import { getErrorMessage } from '../../api/request'
 
 const router = useRouter()
 const form = ref({ username: '', password: '' })
@@ -20,7 +21,7 @@ const onSubmit = async () => {
     ElMessage.success('登录成功')
     router.push('/admin/articles')
   } catch (e) {
-    ElMessage.error(e.message || '登录失败')
+    ElMessage.error(getErrorMessage(e, '登录失败'))
   } finally {
     loading.value = false
   }
