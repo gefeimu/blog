@@ -132,14 +132,14 @@ onMounted(async () => {
     <div class="articles-body">
       <!-- 左侧标签边栏 -->
       <aside class="topics-sidebar">
-        <h3 class="topics-title">TOPICS</h3>
+        <h3 class="topics-title">标签</h3>
         <nav class="topics-nav">
           <a
             class="topic-item"
             :class="{ 'is-active': !tagId }"
             @click="pickTag(undefined)"
           >
-            <span class="topic-name">All posts</span>
+            <span class="topic-name">所有文章</span>
             <span class="topic-count">{{ total }}</span>
           </a>
           <a
@@ -158,7 +158,7 @@ onMounted(async () => {
     <!-- 右侧文章列表 -->
     <div class="articles-main">
         <p v-if="!keywordDebounced && !tagId" class="page-description">
-          A minimal archive for essays on engineering, architecture, and delivery.
+          这里记录我感兴趣的话题，也许是技术、也许是生活、也许是随笔，欢迎阅读和交流。
         </p>
 
         <ul v-if="articles.length" class="list-divider">

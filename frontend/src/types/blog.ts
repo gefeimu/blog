@@ -43,6 +43,8 @@ export interface ArticleSummary {
   createdAt: string
   updatedAt: string
   tags?: string[]
+  /** 扩展字段（JSON）：封面图等 */
+  ext?: ArticleExt
 }
 
 /** 文章详情 */
