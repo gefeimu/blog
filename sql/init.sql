@@ -32,6 +32,15 @@ CREATE TABLE IF NOT EXISTS article_tag (
   PRIMARY KEY (article_id, tag_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章标签关联';
 
+CREATE TABLE IF NOT EXISTS admin_user (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50) NOT NULL COMMENT '用户名',
+  password_hash VARCHAR(100) NOT NULL COMMENT 'BCrypt 密码哈希',
+  nickname VARCHAR(50) COMMENT '昵称',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_username (username)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='后台管理员';
+
 INSERT INTO category (name, sort) VALUES
   ('开发技术', 1),
   ('拼装模型', 2),

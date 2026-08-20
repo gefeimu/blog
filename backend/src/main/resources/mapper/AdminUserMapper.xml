@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.AdminUserMapper">
+
+    <resultMap id="userMap" type="com.blog.entity.AdminUser">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password_hash" property="passwordHash"/>
+        <result column="nickname" property="nickname"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="selectByUsername" resultMap="userMap">
+        SELECT id, username, password_hash, nickname, created_at
+        FROM admin_user
+        WHERE username = #{username}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO admin_user (username, password_hash, nickname)
+        VALUES (#{username}, #{passwordHash}, #{nickname})
+    </insert>
+
+</mapper>

@@ -1,0 +1,66 @@
+package com.blog.config;
+
+import com.blog.entity.AdminUser;
+import com.blog.mapper.AdminUserMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
+
+/**
+ * 启动初始化：
+ * 1. 幂等创建 admin_user 表（兼容已初始化的旧库，init.sql 不会重复执行）
+ * 2. 无任何管理员时创建默认管理员
+ */
+@Component
+public class DataInitializer implements ApplicationRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
+
+    private final JdbcTemplate jdbcTemplate;
+    private final AdminUserMapper adminUserMapper;
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    @Value("${blog.admin.username:admin}")
+    private String defaultUsername;
+
+    @Value("${blog.admin.password:admin123}")
+    private String defaultPassword;
+
+    public DataInitializer(JdbcTemplate jdbcTemplate,
+                           AdminUserMapper adminUserMapper,
+                           BCryptPasswordEncoder passwordEncoder) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.adminUserMapper = adminUserMapper;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public void run(ApplicationArguments args) {
+        jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS admin_user (
+                  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                  username VARCHAR(50) NOT NULL COMMENT '用户名',
+                  password_hash VARCHAR(100) NOT NULL COMMENT 'BCrypt 密码哈希',
+                  nickname VARCHAR(50) COMMENT '昵称',
+                  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                  UNIQUE KEY uk_username (username)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='后台管理员'
+                """);
+
+        if (adminUserMapper.selectByUsername(defaultUsername) == null) {
+            AdminUser user = new AdminUser();
+            user.setUsername(defaultUsername);
+            user.setPasswordHash(passwordEncoder.encode(defaultPassword));
+            user.setNickname(defaultUsername);
+            adminUserMapper.insert(user);
+            log.warn("已创建默认管理员: {} / {}（请尽快登录后台修改密码）", defaultUsername, defaultPassword);
+        } else {
+            log.info("管理员账号已存在，跳过初始化");
+        }
+    }
+}

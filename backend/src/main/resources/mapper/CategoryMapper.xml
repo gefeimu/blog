@@ -23,4 +23,24 @@
         WHERE id = #{id}
     </select>
 
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO category (name, sort)
+        VALUES (#{name}, #{sort})
+    </insert>
+
+    <update id="update">
+        UPDATE category
+        SET name = #{name},
+            sort = #{sort}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM category WHERE id = #{id}
+    </delete>
+
+    <select id="countByCategoryId" resultType="long">
+        SELECT COUNT(*) FROM article WHERE category_id = #{categoryId}
+    </select>
+
 </mapper>

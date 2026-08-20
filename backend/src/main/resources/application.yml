@@ -28,3 +28,12 @@ blog:
     upload-dir: /app/uploads
     # 图片 URL 前缀（与 Nginx location /uploads/ 对应）
     url-prefix: /uploads
+  jwt:
+    # JWT 签名密钥，生产环境务必通过 BLOG_JWT_SECRET 环境变量覆盖（至少 32 字符）
+    secret: ${BLOG_JWT_SECRET:blog-jwt-secret-change-me-in-production-0123456789}
+    # token 有效期（毫秒），默认 7 天
+    expiration-ms: ${BLOG_JWT_EXPIRATION_MS:604800000}
+  admin:
+    # 默认管理员（仅首次启动自动创建时生效）
+    username: ${BLOG_ADMIN_USERNAME:admin}
+    password: ${BLOG_ADMIN_PASSWORD:admin123}

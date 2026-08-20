@@ -13,6 +13,35 @@ const routes = [
     name: 'article',
     component: () => import('../views/ArticleView.vue'),
   },
+  // ---------- 后台管理 ----------
+  { path: '/admin/login', name: 'admin-login', component: () => import('../views/admin/AdminLogin.vue') },
+  {
+    path: '/admin',
+    component: () => import('../views/admin/AdminLayout.vue'),
+    children: [
+      { path: '', redirect: '/admin/articles' },
+      {
+        path: 'articles',
+        name: 'admin-articles',
+        component: () => import('../views/admin/AdminArticles.vue'),
+      },
+      {
+        path: 'articles/new',
+        name: 'admin-article-new',
+        component: () => import('../views/admin/AdminArticleEdit.vue'),
+      },
+      {
+        path: 'articles/:id/edit',
+        name: 'admin-article-edit',
+        component: () => import('../views/admin/AdminArticleEdit.vue'),
+      },
+      {
+        path: 'categories',
+        name: 'admin-categories',
+        component: () => import('../views/admin/AdminCategories.vue'),
+      },
+    ],
+  },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 
@@ -22,6 +51,16 @@ const router = createRouter({
   scrollBehavior() {
     return { top: 0 }
   },
+})
+
+// 登录守卫：后台页面需持有 token
+router.beforeEach((to) => {
+  if (to.path.startsWith('/admin') && to.path !== '/admin/login') {
+    if (!localStorage.getItem('blog_token')) {
+      return '/admin/login'
+    }
+  }
+  return true
 })
 
 export default router
