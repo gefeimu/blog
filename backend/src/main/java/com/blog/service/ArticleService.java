@@ -35,12 +35,12 @@ public class ArticleService {
         this.articleConverter = articleConverter;
     }
 
-    public PageResult<ArticleVO> page(int page, int size, Integer status, Long categoryId, Long tagId) {
+    public PageResult<ArticleVO> page(int page, int size, Integer status, Long categoryId, Long tagId, String keyword) {
         int offset = (page - 1) * size;
-        long total = articleMapper.count(status, categoryId, tagId);
+        long total = articleMapper.count(status, categoryId, tagId, keyword);
         List<Article> list = total == 0
                 ? Collections.emptyList()
-                : articleMapper.selectPage(offset, size, status, categoryId, tagId);
+                : articleMapper.selectPage(offset, size, status, categoryId, tagId, keyword);
         List<ArticleVO> voList = list.stream().map(articleConverter::toVO).toList();
         return new PageResult<>(total, page, size, voList);
     }

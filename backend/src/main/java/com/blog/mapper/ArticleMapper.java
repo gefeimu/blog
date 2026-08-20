@@ -13,11 +13,13 @@ public interface ArticleMapper {
                              @Param("size") int size,
                              @Param("status") Integer status,
                              @Param("categoryId") Long categoryId,
-                             @Param("tagId") Long tagId);
+                             @Param("tagId") Long tagId,
+                             @Param("keyword") String keyword);
 
     long count(@Param("status") Integer status,
                @Param("categoryId") Long categoryId,
-               @Param("tagId") Long tagId);
+               @Param("tagId") Long tagId,
+               @Param("keyword") String keyword);
 
     Article selectById(Long id);
 

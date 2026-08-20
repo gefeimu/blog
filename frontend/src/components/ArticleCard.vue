@@ -47,7 +47,11 @@ const fallbackEmoji = '📝'
       <!-- 右侧文案：hover 时整列轻微右移（标题不高亮） -->
       <div class="post-body">
         <h2 class="post-title">
-          <a :href="`/article/${article.id}`" @click.stop>
+          <!-- SPA 路由跳转：阻止 a 默认整页刷新，交由 vue-router 接管 -->
+          <a
+            :href="`/article/${article.id}`"
+            @click.stop.prevent="router.push(`/article/${article.id}`)"
+          >
             {{ article.title }}
           </a>
         </h2>
@@ -69,7 +73,7 @@ const fallbackEmoji = '📝'
         <a
           class="read-more"
           :href="`/article/${article.id}`"
-          @click.stop
+          @click.stop.prevent="router.push(`/article/${article.id}`)"
         >
           查看详情 →
         </a>

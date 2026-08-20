@@ -49,6 +49,9 @@
                     WHERE at2.article_id = a.id AND at2.tag_id = #{tagId}
                 )
             </if>
+            <if test="keyword != null and keyword != ''">
+                AND a.title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
         </where>
         ORDER BY a.created_at DESC, a.id DESC
         LIMIT #{offset}, #{size}
@@ -69,6 +72,9 @@
                     SELECT 1 FROM article_tag at3
                     WHERE at3.article_id = a.id AND at3.tag_id = #{tagId}
                 )
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND a.title LIKE CONCAT('%', #{keyword}, '%')
             </if>
         </where>
     </select>

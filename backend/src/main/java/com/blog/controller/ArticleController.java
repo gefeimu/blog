@@ -30,14 +30,15 @@ public class ArticleController {
                                       @RequestParam(defaultValue = "10") int size,
                                       @RequestParam(required = false) Integer status,
                                       @RequestParam(required = false) Long categoryId,
-                                      @RequestParam(required = false) Long tagId) {
+                                      @RequestParam(required = false) Long tagId,
+                                      @RequestParam(required = false) String keyword) {
         if (page < 1) {
             page = 1;
         }
         if (size < 1 || size > 100) {
             size = 10;
         }
-        return articleService.page(page, size, status, categoryId, tagId);
+        return articleService.page(page, size, status, categoryId, tagId, keyword);
     }
 
     @GetMapping("/{id}")
