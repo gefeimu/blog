@@ -207,10 +207,9 @@ a:hover {
 }
 .post-title a {
   color: var(--color-text);
+  transition: color 0.2s;
 }
-.post-title a:hover {
-  color: var(--color-primary);
-}
+/* Tambouille 风格：标题不高亮，hover 由整列位移提示 */
 .post-tags {
   display: flex;
   flex-wrap: wrap;

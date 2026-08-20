@@ -21,7 +21,7 @@ const coverUrl = computed(() => {
   return a.cover || a.ext?.cover || ''
 })
 
-// 列表无日期文字标签时也能美化 fallback：渐变色块 + emoji
+// 列表无封面时的 fallback：渐变色块 + emoji
 const fallbackEmoji = '📝'
 </script>
 
@@ -44,7 +44,7 @@ const fallbackEmoji = '📝'
         <div v-else class="post-cover-fallback">{{ fallbackEmoji }}</div>
       </div>
 
-      <!-- 右侧文案 -->
+      <!-- 右侧文案：hover 时整列轻微右移（标题不高亮） -->
       <div class="post-body">
         <h2 class="post-title">
           <a :href="`/article/${article.id}`" @click.stop>
@@ -79,16 +79,19 @@ const fallbackEmoji = '📝'
 </template>
 
 <style scoped>
-.post-grid {
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.post-grid:hover {
-  transform: translateX(2px);
-}
 .post-cover-wrap {
   position: relative;
   border-radius: 6px;
   overflow: hidden;
+}
+
+/* 鼠标放在整张卡上：只有右侧文字列（post-body）轻微右移，
+   标题保持原色不变色，封面不动 */
+.post-body {
+  min-width: 0;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.list-item:hover .post-body {
+  transform: translateX(6px);
 }
 </style>
