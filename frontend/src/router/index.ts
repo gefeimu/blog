@@ -3,15 +3,23 @@ import type { RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 
 const routes: RouteRecordRaw[] = [
-  // 文章列表（全部）
+  // 首页（hero 个人介绍）
   { path: '/', name: 'home', component: HomeView },
-  // 按标签筛选文章（复用 HomeView，通过路由参数 tagId 区分）
-  { path: '/tag/:id', name: 'tag-articles', component: HomeView, props: true },
+  // 博客（文章列表）
+  { path: '/articles', name: 'articles', component: () => import('../views/ArticleListView.vue') },
+  // 按标签筛选文章
+  { path: '/tag/:id', name: 'tag-articles', component: () => import('../views/ArticleListView.vue'), props: true },
   // 标签云
   {
     path: '/tags',
     name: 'tags',
     component: () => import('../views/TagsView.vue'),
+  },
+  // 项目
+  {
+    path: '/projects',
+    name: 'projects',
+    component: () => import('../views/ProjectsView.vue'),
   },
   // 关于
   {

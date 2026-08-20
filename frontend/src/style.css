@@ -39,57 +39,71 @@ a:hover {
   color: var(--color-primary);
 }
 
-.container {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 20px;
+/* ---------- 全局布局：左侧固定导航 + 右侧主区 ---------- */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
 }
 
-/* 顶部导航 */
-.site-header {
-  background: var(--color-card);
-  border-bottom: 1px solid var(--color-border);
+.app-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  padding: 32px 24px;
   position: sticky;
   top: 0;
-  z-index: 10;
-}
-
-.site-header .container {
+  height: 100vh;
   display: flex;
-  align-items: center;
-  gap: 28px;
-  height: 56px;
+  flex-direction: column;
+  align-items: flex-start;
+  border-right: 1px solid var(--color-border);
 }
 
-.site-title {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-.site-nav {
+.sidebar-nav {
   display: flex;
-  gap: 4px;
-  font-size: 14px;
+  flex-direction: column;
+  gap: 6px;
 }
-.nav-tab {
-  padding: 6px 14px;
-  border-radius: 6px;
+.sidebar-nav-item {
+  padding: 8px 0;
   color: var(--color-text-light);
-  transition: color 0.2s, background 0.2s;
+  font-size: 14px;
+  transition: color 0.2s;
 }
-.nav-tab:hover {
+.sidebar-nav-item:hover {
   color: var(--color-text);
 }
-.nav-tab.router-link-active {
+.sidebar-nav-item.router-link-active {
   color: var(--color-primary);
   font-weight: 600;
-  background: rgba(184, 134, 11, 0.08);
 }
 
-/* 单栏内容区由各页面 .home-page / .article-page / .tags-page / .about-page 控制 */
+.app-main {
+  flex: 1;
+  min-width: 0;
+  max-width: 1000px;
+  padding: 0 32px;
+}
 
-/* 卡片 */
+.app-topbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  background: var(--color-bg);
+  z-index: 5;
+}
+.nickname {
+  font-size: 14px;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.nickname:hover {
+  color: var(--color-primary);
+}
+
+/* ---------- 卡片 ---------- */
 .card {
   background: var(--color-card);
   border: 1px solid var(--color-border);
@@ -125,7 +139,6 @@ a:hover {
   padding: 1px 8px;
   font-size: 12px;
 }
-
 .tag:not(:last-child) {
   margin-right: 6px;
 }
@@ -140,15 +153,31 @@ a:hover {
 }
 
 @media (max-width: 768px) {
-  .site-header .container {
-    flex-wrap: wrap;
+  .app-layout {
+    flex-direction: column;
+  }
+  .app-sidebar {
+    width: 100%;
     height: auto;
-    padding: 10px 20px;
-    gap: 8px;
+    position: static;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    padding: 12px 20px;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+  .sidebar-nav {
+    flex-direction: row;
+    gap: 16px;
+    flex: 1;
+  }
+  .app-main {
+    padding: 0 20px;
   }
 }
 
-/* 详情页 markdown 正文 */
+/* ---------- 详情页 markdown 正文 ---------- */
 .article-content {
   font-size: 15px;
   margin-top: 20px;
@@ -246,7 +275,7 @@ a:hover {
 }
 
 .page-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   margin-bottom: 16px;
 }
@@ -314,9 +343,6 @@ html.dark {
   --color-border: #343434;
   --color-code-bg: #0d1117;
 }
-html.dark .nav-tab.router-link-active {
-  background: rgba(212, 167, 44, 0.12);
-}
 html.dark .article-content th {
   background: #262626;
 }
@@ -327,8 +353,9 @@ html.dark .tag {
 html.dark .banner-cover {
   background: #2a2a2a;
 }
-html.dark .site-header {
-  background: var(--color-card);
+html.dark .app-sidebar {
+  background: #0d1220;
+  border-right-color: var(--color-border);
 }
 html.dark .admin-aside {
   background: #0d1220;

@@ -1,0 +1,1 @@
+import{h as e}from"./request-CwjNCmpt.js";const a=t=>e.get("/articles",{params:t}),r=t=>e.get(`/articles/${t}`),l=()=>e.get("/tags"),i=t=>e.post("/articles",t),o=(t,s)=>e.put(`/articles/${t}`,s),g=t=>e.delete(`/articles/${t}`);export{a,r as b,i as c,g as d,l as g,o as u};
