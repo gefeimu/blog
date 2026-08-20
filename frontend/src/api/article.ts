@@ -1,5 +1,5 @@
 import { http } from './request'
-import type { ArticleDetail, ArticlePayload, ArticleQuery, ArticleSummary, PageResult, Tag } from '../types/blog'
+import type { ArticleDetail, ArticlePayload, ArticleQuery, ArticleSummary, PageResult } from '../types/blog'
 
 // ---------- 公开读 ----------
 
@@ -9,7 +9,7 @@ export const getArticles = (params: ArticleQuery) =>
 export const getArticle = (id: number | string) =>
   http.get<ArticleDetail>(`/articles/${id}`)
 
-export const getTags = () => http.get<Tag[]>('/tags')
+// 标签相关接口已迁移至 api/tag.ts
 
 // ---------- 管理（需登录） ----------
 

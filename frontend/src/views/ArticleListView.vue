@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getArticles, getTags } from '../api/article'
+import { getArticles } from '../api/article'
+import { getTags } from '../api/tag'
 import type { ArticleSummary, Tag } from '../types/blog'
 import ArticleCard from '../components/ArticleCard.vue'
 

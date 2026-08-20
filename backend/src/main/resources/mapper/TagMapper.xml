@@ -4,6 +4,12 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.blog.mapper.TagMapper">
 
+    <resultMap id="tagMap" type="com.blog.entity.Tag">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
     <!-- 统计已发布文章数：LEFT JOIN article 限定 status=1，草稿不计入 count -->
     <select id="selectAllWithCount" resultType="com.blog.dto.TagVO">
         SELECT t.id, t.name,
@@ -14,6 +20,34 @@
         LEFT JOIN article a ON at.article_id = a.id AND a.status = 1
         GROUP BY t.id, t.name, t.created_at
         ORDER BY count DESC, t.id ASC
+    </select>
+
+    <select id="selectById" resultMap="tagMap">
+        SELECT id, name, created_at
+        FROM tag
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tag (name)
+        VALUES (#{name})
+    </insert>
+
+    <update id="update">
+        UPDATE tag
+        SET name = #{name}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM tag WHERE id = #{id}
+    </delete>
+
+    <select id="countByTagId" resultType="long">
+        SELECT COUNT(*)
+        FROM article_tag at
+        INNER JOIN article a ON at.article_id = a.id AND a.status = 1
+        WHERE at.tag_id = #{tagId}
     </select>
 
 </mapper>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
-import { Document, FolderOpened, EditPen, SwitchButton, ArrowLeftBold, Sunny, Moon } from '@element-plus/icons-vue'
+import { Document, CollectionTag, EditPen, SwitchButton, ArrowLeftBold, Sunny, Moon } from '@element-plus/icons-vue'
 import { useTheme } from '../../composables/useTheme'
 
 const route = useRoute()
@@ -29,10 +29,11 @@ const logout = () => {
           <el-icon><EditPen /></el-icon>
           <span>写文章</span>
         </el-menu-item>
-        <el-menu-item index="/admin/categories">
-          <el-icon><FolderOpened /></el-icon>
-          <span>分类管理</span>
+        <el-menu-item index="/admin/tags">
+          <el-icon><CollectionTag /></el-icon>
+          <span>标签管理</span>
         </el-menu-item>
+        <!-- 分类管理入口已隐藏（前台已移除分类体系），路由保留可直达 /admin/categories 清理旧数据 -->
       </el-menu>
     </el-aside>
 

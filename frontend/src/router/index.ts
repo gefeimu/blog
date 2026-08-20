@@ -55,6 +55,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('../views/admin/AdminArticleEdit.vue'),
       },
       {
+        path: 'tags',
+        name: 'admin-tags',
+        component: () => import('../views/admin/AdminTags.vue'),
+      },
+      {
         path: 'categories',
         name: 'admin-categories',
         component: () => import('../views/admin/AdminCategories.vue'),
