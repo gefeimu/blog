@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -72,6 +73,7 @@ public class LocalFileStorageService implements FileStorageService {
             throw new IllegalArgumentException("仅支持 jpg/jpeg/png/gif/webp 格式");
         }
         ext = ext.toLowerCase(Locale.ROOT);
+        validateImageContent(file, ext);
         // 按 yyyy/MM 分目录 + UUID 文件名，避免重名与单目录文件过多
         String month = LocalDate.now().format(MONTH_DIR);
         Path dir = uploadPath.resolve(month);
@@ -79,13 +81,41 @@ public class LocalFileStorageService implements FileStorageService {
         Path target = dir.resolve(filename);
         try {
             Files.createDirectories(dir);
-            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+            try (InputStream in = file.getInputStream()) {
+                Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+            }
         } catch (IOException e) {
             throw new RuntimeException("保存图片失败: " + original, e);
         }
         String url = urlPrefix + "/" + month + "/" + filename;
         log.info("图片已保存: {}", url);
         return url;
+    }
+
+    /** 校验文件头（magic bytes）与扩展名一致，防止伪造扩展名的非图片文件上传 */
+    private void validateImageContent(MultipartFile file, String ext) {
+        byte[] header = new byte[12];
+        try (InputStream in = file.getInputStream()) {
+            int read = in.readNBytes(header, 0, header.length);
+            boolean valid = switch (ext) {
+                case "jpg", "jpeg" -> read >= 3
+                        && (header[0] & 0xFF) == 0xFF && (header[1] & 0xFF) == 0xD8 && (header[2] & 0xFF) == 0xFF;
+                case "png" -> read >= 8
+                        && (header[0] & 0xFF) == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47
+                        && header[4] == 0x0D && header[5] == 0x0A && header[6] == 0x1A && header[7] == 0x0A;
+                case "gif" -> read >= 4
+                        && header[0] == 0x47 && header[1] == 0x49 && header[2] == 0x46 && header[3] == 0x38;
+                case "webp" -> read >= 12
+                        && header[0] == 0x52 && header[1] == 0x49 && header[2] == 0x46 && header[3] == 0x46
+                        && header[8] == 0x57 && header[9] == 0x45 && header[10] == 0x42 && header[11] == 0x50;
+                default -> false;
+            };
+            if (!valid) {
+                throw new IllegalArgumentException("文件内容与扩展名不符或非有效图片");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("读取图片内容失败: " + file.getOriginalFilename(), e);
+        }
     }
 
     @Override

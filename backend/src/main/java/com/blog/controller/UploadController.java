@@ -21,13 +21,8 @@ public class UploadController {
     }
 
     @PostMapping("/image")
-    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
-        String url;
-        try {
-            url = fileStorageService.saveImage(file);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) {
+        String url = fileStorageService.saveImage(file);
         return ResponseEntity.ok(Map.of("url", url));
     }
 }
