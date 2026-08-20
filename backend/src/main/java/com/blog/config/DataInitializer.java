@@ -48,6 +48,12 @@ public class DataInitializer implements ApplicationRunner {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='后台管理员'
                 """);
 
+        // 幂等迁移：为已初始化的旧库补充新列（init.sql 对全新库已包含，不会重复执行）
+        ensureColumn("article", "layout",
+                "layout VARCHAR(20) NOT NULL DEFAULT 'default' COMMENT '布局: default/minimal/banner'");
+        ensureColumn("article", "ext",
+                "ext JSON COMMENT '扩展字段(JSON): 封面图/置顶/自定义slug等'");
+
         if (adminUserMapper.selectByUsername(admin.getUsername()) == null) {
             AdminUser user = new AdminUser();
             user.setUsername(admin.getUsername());
@@ -57,6 +63,18 @@ public class DataInitializer implements ApplicationRunner {
             log.warn("已创建默认管理员: {} / {}（请尽快登录后台修改密码）", admin.getUsername(), admin.getPassword());
         } else {
             log.info("管理员账号已存在，跳过初始化");
+        }
+    }
+
+    /** 检查列是否存在，不存在则 ALTER TABLE 补充（MySQL 8 无 ADD COLUMN IF NOT EXISTS） */
+    private void ensureColumn(String table, String column, String columnDdl) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?
+                """, Integer.class, table, column);
+        if (count == null || count == 0) {
+            jdbcTemplate.execute("ALTER TABLE " + table + " ADD COLUMN " + columnDdl);
+            log.info("已为表 {} 补充字段: {}", table, column);
         }
     }
 }

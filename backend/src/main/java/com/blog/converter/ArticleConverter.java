@@ -18,6 +18,8 @@ public class ArticleConverter {
         article.setCategoryId(request.getCategoryId());
         article.setSummary(request.getSummary());
         article.setContent(request.getContent());
+        article.setLayout(request.getLayout());
+        article.setExt(request.getExt());
         article.setStatus(request.getStatus());
         article.setTagIds(request.getTagIds());
         return article;
@@ -31,6 +33,8 @@ public class ArticleConverter {
         vo.setCategoryName(article.getCategoryName());
         vo.setSummary(article.getSummary());
         vo.setContentPath(article.getContentPath());
+        vo.setLayout(article.getLayout());
+        vo.setExt(article.getExt());
         vo.setContent(article.getContent());
         vo.setStatus(article.getStatus());
         vo.setViewCount(article.getViewCount());

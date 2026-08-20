@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { getCategories } from './api/category'
 
 const categories = ref([])
@@ -15,23 +16,26 @@ onMounted(async () => {
 </script>
 
 <template>
-  <header class="site-header">
-    <div class="container">
-      <router-link to="/" class="site-title">白工的博客</router-link>
-      <nav class="site-nav">
-        <router-link to="/">首页</router-link>
-        <router-link
-          v-for="c in categories"
-          :key="c.id"
-          :to="`/category/${c.id}`"
-        >
-          {{ c.name }}
-        </router-link>
-      </nav>
-    </div>
-  </header>
+  <!-- 全局 Element Plus 中文本地化（按需引入模式下替代 app.use(ElementPlus, { locale })） -->
+  <el-config-provider :locale="zhCn">
+    <header class="site-header">
+      <div class="container">
+        <router-link to="/" class="site-title">白工的博客</router-link>
+        <nav class="site-nav">
+          <router-link to="/">首页</router-link>
+          <router-link
+            v-for="c in categories"
+            :key="c.id"
+            :to="`/category/${c.id}`"
+          >
+            {{ c.name }}
+          </router-link>
+        </nav>
+      </div>
+    </header>
 
-  <main class="container">
-    <router-view />
-  </main>
+    <main class="container">
+      <router-view />
+    </main>
+  </el-config-provider>
 </template>

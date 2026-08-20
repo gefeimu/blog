@@ -1,11 +1,13 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import MarkdownIt from 'markdown-it'
 import { getArticle } from '../api/article'
 import { getCategories } from '../api/category'
-import { formatDate } from '../utils/format'
 import Sidebar from '../components/Sidebar.vue'
+import ArticleLayoutDefault from '../components/article/ArticleLayoutDefault.vue'
+import ArticleLayoutMinimal from '../components/article/ArticleLayoutMinimal.vue'
+import ArticleLayoutBanner from '../components/article/ArticleLayoutBanner.vue'
 
 const route = useRoute()
 const md = new MarkdownIt({ html: false, linkify: true, breaks: true })
@@ -16,11 +18,22 @@ const loading = ref(true)
 const html = ref('')
 const categories = ref([])
 
+// 布局驱动：文章 layout 字段决定渲染组件，未知值回退默认布局
+const layoutMap = {
+  default: ArticleLayoutDefault,
+  minimal: ArticleLayoutMinimal,
+  banner: ArticleLayoutBanner,
+}
+const currentLayout = computed(() => layoutMap[article.value?.layout] || ArticleLayoutDefault)
+
 onMounted(async () => {
   try {
     article.value = await getArticle(route.params.id)
-    // 正文走 Markdown（content 字段由后端正文存储接口提供，暂为空则占位）
-    if (article.value.content) {
+    // 优先使用后端渲染管线产物 contentHtml（commonmark，含懒加载/外链处理）；
+    // 旧数据或异常时回退前端 markdown-it 渲染
+    if (article.value.contentHtml) {
+      html.value = article.value.contentHtml
+    } else if (article.value.content) {
       html.value = md.render(article.value.content)
     }
   } catch (e) {
@@ -43,22 +56,12 @@ onMounted(async () => {
 
       <div v-else-if="notFound" class="empty-tip">文章不存在或已删除</div>
 
-      <article v-else-if="article" class="card">
-        <h1 class="article-title">{{ article.title }}</h1>
-        <div class="article-meta">
-          <span>{{ article.categoryName }}</span>
-          <span>{{ formatDate(article.createdAt) }}</span>
-          <span>浏览 {{ article.viewCount ?? 0 }}</span>
-          <span v-if="article.tags?.length">
-            <span v-for="t in article.tags" :key="t" class="tag">{{ t }}</span>
-          </span>
-        </div>
-
-        <div v-if="html" class="article-content" v-html="html"></div>
-        <div v-else class="empty-tip" style="padding: 32px 0">
-          暂无正文
-        </div>
-      </article>
+      <component
+        :is="currentLayout"
+        v-else-if="article"
+        :article="article"
+        :html="html"
+      />
     </div>
 
     <Sidebar :categories="categories" />

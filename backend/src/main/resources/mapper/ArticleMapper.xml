@@ -11,6 +11,8 @@
         <result column="category_name" property="categoryName"/>
         <result column="summary" property="summary"/>
         <result column="content_path" property="contentPath"/>
+        <result column="layout" property="layout"/>
+        <result column="ext" property="ext" typeHandler="com.blog.common.JacksonMapTypeHandler"/>
         <result column="status" property="status"/>
         <result column="view_count" property="viewCount"/>
         <result column="created_at" property="createdAt"/>
@@ -20,6 +22,7 @@
 
     <sql id="baseColumns">
         a.id, a.title, a.category_id, a.summary, a.content_path,
+        a.layout, a.ext,
         a.status, a.view_count, a.created_at, a.updated_at,
         c.name AS category_name
     </sql>
@@ -74,8 +77,8 @@
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO article (title, category_id, summary, content_path, status)
-        VALUES (#{title}, #{categoryId}, #{summary}, #{contentPath}, #{status})
+        INSERT INTO article (title, category_id, summary, content_path, layout, ext, status)
+        VALUES (#{title}, #{categoryId}, #{summary}, #{contentPath}, #{layout}, #{ext, typeHandler=com.blog.common.JacksonMapTypeHandler}, #{status})
     </insert>
 
     <update id="update">
@@ -84,6 +87,8 @@
             category_id = #{categoryId},
             summary = #{summary},
             content_path = #{contentPath},
+            layout = #{layout},
+            ext = #{ext, typeHandler=com.blog.common.JacksonMapTypeHandler},
             status = #{status}
         WHERE id = #{id}
     </update>

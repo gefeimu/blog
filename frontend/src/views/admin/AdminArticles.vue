@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { getArticles, deleteArticle } from '../../api/article'
 import { getCategories } from '../../api/category'
 import { formatDate } from '../../utils/format'

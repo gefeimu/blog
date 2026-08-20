@@ -12,6 +12,10 @@ public class ArticleRequest {
     private String summary;
     /** markdown 正文（新建必填；更新时传 null 表示不覆盖正文文件） */
     private String content;
+    /** 展示布局：default/minimal/banner（不传默认 default） */
+    private String layout;
+    /** 扩展字段（JSON 对象）：封面图 cover 等 */
+    private java.util.Map<String, Object> ext;
     /** 0草稿 1发布 */
     private Integer status;
     private List<Long> tagIds;
@@ -46,6 +50,22 @@ public class ArticleRequest {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getLayout() {
+        return layout;
+    }
+
+    public void setLayout(String layout) {
+        this.layout = layout;
+    }
+
+    public java.util.Map<String, Object> getExt() {
+        return ext;
+    }
+
+    public void setExt(java.util.Map<String, Object> ext) {
+        this.ext = ext;
     }
 
     public Integer getStatus() {

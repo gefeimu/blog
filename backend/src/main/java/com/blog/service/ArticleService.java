@@ -12,19 +12,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ArticleService {
 
+    /** 支持的展示布局，前台 ArticleView 按此动态渲染 */
+    private static final Set<String> ALLOWED_LAYOUTS = Set.of("default", "minimal", "banner");
+
     private final ArticleMapper articleMapper;
     private final FileStorageService fileStorageService;
+    private final MarkdownService markdownService;
     private final ArticleConverter articleConverter;
 
     public ArticleService(ArticleMapper articleMapper,
                           FileStorageService fileStorageService,
+                          MarkdownService markdownService,
                           ArticleConverter articleConverter) {
         this.articleMapper = articleMapper;
         this.fileStorageService = fileStorageService;
+        this.markdownService = markdownService;
         this.articleConverter = articleConverter;
     }
 
@@ -46,9 +53,11 @@ public class ArticleService {
         // 详情浏览量 +1（列表页访问不加）
         articleMapper.incrementViewCount(id);
         article.setViewCount(article.getViewCount() + 1);
-        // 读取 markdown 正文
-        article.setContent(fileStorageService.readMarkdown(id));
-        return articleConverter.toVO(article);
+        // 正文：原文（content）+ 渲染 HTML（contentHtml，走 MarkdownService 管线）
+        article.setContent(markdownService.read(id));
+        ArticleVO vo = articleConverter.toVO(article);
+        vo.setContentHtml(markdownService.render(id));
+        return vo;
     }
 
     @Transactional
@@ -57,6 +66,7 @@ public class ArticleService {
             throw BizException.badRequest("title 不能为空");
         }
         Article article = articleConverter.toEntity(request);
+        article.setLayout(normalizeLayout(article.getLayout()));
         if (article.getStatus() == null) {
             article.setStatus(0);
         }
@@ -69,7 +79,7 @@ public class ArticleService {
         fileStorageService.saveMarkdown(article.getId(), article.getContent());
         // 回查，返回含分类名/标签/时间的完整视图（带 content）
         Article saved = articleMapper.selectById(article.getId());
-        saved.setContent(fileStorageService.readMarkdown(saved.getId()));
+        saved.setContent(markdownService.read(saved.getId()));
         return articleConverter.toVO(saved);
     }
 
@@ -83,6 +93,7 @@ public class ArticleService {
         }
         Article article = articleConverter.toEntity(request);
         article.setId(id);
+        article.setLayout(normalizeLayout(article.getLayout()));
         articleMapper.update(article);
         articleMapper.deleteArticleTags(id);
         saveTags(id, article.getTagIds());
@@ -91,7 +102,7 @@ public class ArticleService {
             fileStorageService.saveMarkdown(id, article.getContent());
         }
         Article saved = articleMapper.selectById(id);
-        saved.setContent(fileStorageService.readMarkdown(id));
+        saved.setContent(markdownService.read(id));
         return articleConverter.toVO(saved);
     }
 
@@ -110,5 +121,16 @@ public class ArticleService {
             return;
         }
         articleMapper.insertArticleTags(articleId, tagIds);
+    }
+
+    /** 布局缺省为 default，非法值直接拒绝，避免脏数据进入前台渲染 */
+    private String normalizeLayout(String layout) {
+        if (layout == null || layout.isBlank()) {
+            return "default";
+        }
+        if (!ALLOWED_LAYOUTS.contains(layout)) {
+            throw BizException.badRequest("layout 仅支持 default/minimal/banner");
+        }
+        return layout;
     }
 }

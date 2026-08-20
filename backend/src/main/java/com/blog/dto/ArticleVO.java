@@ -15,8 +15,14 @@ public class ArticleVO {
     private String summary;
     /** markdown 文件相对路径 */
     private String contentPath;
+    /** 展示布局：default/minimal/banner（前台按此动态渲染） */
+    private String layout;
+    /** 扩展字段（JSON 对象）：封面图 cover / 置顶 pinned 等 */
+    private java.util.Map<String, Object> ext;
     /** 正文内容（仅详情/创建/更新返回，列表页为 null） */
     private String content;
+    /** 渲染后的 HTML（仅详情接口返回，由 MarkdownService 管线生成） */
+    private String contentHtml;
     /** 0草稿 1发布 */
     private Integer status;
     private Integer viewCount;
@@ -78,6 +84,30 @@ public class ArticleVO {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getLayout() {
+        return layout;
+    }
+
+    public void setLayout(String layout) {
+        this.layout = layout;
+    }
+
+    public java.util.Map<String, Object> getExt() {
+        return ext;
+    }
+
+    public void setExt(java.util.Map<String, Object> ext) {
+        this.ext = ext;
+    }
+
+    public String getContentHtml() {
+        return contentHtml;
+    }
+
+    public void setContentHtml(String contentHtml) {
+        this.contentHtml = contentHtml;
     }
 
     public Integer getStatus() {

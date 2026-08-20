@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 import { getArticle, getTags, createArticle, updateArticle } from '../../api/article'
@@ -24,6 +23,8 @@ const form = ref({
   tagIds: [],
   summary: '',
   status: 1,
+  layout: 'default',
+  ext: { cover: '' },
 })
 
 let vditor = null
@@ -72,6 +73,8 @@ const loadArticle = async () => {
     form.value.tagIds = res.tagIds || []
     form.value.summary = res.summary || ''
     form.value.status = res.status
+    form.value.layout = res.layout || 'default'
+    form.value.ext = { cover: res.ext?.cover || '' }
     if (vditor) {
       vditor.setValue(res.content || '')
     } else {
@@ -99,6 +102,9 @@ const onSave = async (status) => {
     tagIds: form.value.tagIds,
     summary: form.value.summary?.trim() || '',
     status: status ?? form.value.status,
+    layout: form.value.layout,
+    // ext 扩展字段：封面图 URL 为空时传空对象，避免写入脏数据
+    ext: form.value.ext?.cover?.trim() ? { cover: form.value.ext.cover.trim() } : {},
     content: vditor?.getValue() || '',
   }
   saving.value = true
@@ -173,12 +179,34 @@ onUnmounted(() => {
             placeholder="文章摘要（列表页展示）"
           />
         </el-form-item>
-        <el-form-item label="状态">
-          <el-radio-group v-model="form.status">
-            <el-radio :value="1">发布</el-radio>
-            <el-radio :value="0">草稿</el-radio>
-          </el-radio-group>
-        </el-form-item>
+        <el-row :gutter="24">
+          <el-col :span="8">
+            <el-form-item label="状态">
+              <el-radio-group v-model="form.status">
+                <el-radio :value="1">发布</el-radio>
+                <el-radio :value="0">草稿</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="布局">
+              <el-select v-model="form.layout" style="width: 100%">
+                <el-option label="默认" value="default" />
+                <el-option label="极简" value="minimal" />
+                <el-option label="横幅" value="banner" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="封面图">
+              <el-input
+                v-model="form.ext.cover"
+                placeholder="图片 URL（横幅布局顶部展示）"
+                clearable
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="正文" class="vditor-form-item">
           <div id="vditor" class="vditor-box" />
         </el-form-item>

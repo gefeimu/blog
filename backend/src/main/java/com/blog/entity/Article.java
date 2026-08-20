@@ -13,6 +13,10 @@ public class Article {
     private String summary;
     /** markdown 文件相对路径 */
     private String contentPath;
+    /** 展示布局：default/minimal/banner（前台按此动态渲染） */
+    private String layout;
+    /** 扩展字段（JSON）：封面图 cover / 置顶 pinned / 自定义 slug 等，避免频繁加列 */
+    private java.util.Map<String, Object> ext;
     /** 非持久化字段：正文内容（入参/出参） */
     private String content;
     /** 0草稿 1发布 */
@@ -79,6 +83,22 @@ public class Article {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getLayout() {
+        return layout;
+    }
+
+    public void setLayout(String layout) {
+        this.layout = layout;
+    }
+
+    public java.util.Map<String, Object> getExt() {
+        return ext;
+    }
+
+    public void setExt(java.util.Map<String, Object> ext) {
+        this.ext = ext;
     }
 
     public Integer getStatus() {

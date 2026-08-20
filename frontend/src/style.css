@@ -228,6 +228,26 @@ a:hover {
   border-bottom: 1px dashed var(--color-primary);
 }
 
+/* GFM 表格（后端渲染管线输出） */
+.article-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+.article-content th,
+.article-content td {
+  border: 1px solid var(--color-border);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.article-content th {
+  background: #fafafa;
+  font-weight: 600;
+}
+
 /* 状态 */
 .empty-tip {
   text-align: center;

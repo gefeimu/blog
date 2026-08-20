@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS article (
   category_id BIGINT COMMENT '分类ID',
   summary VARCHAR(500) COMMENT '摘要',
   content_path VARCHAR(500) COMMENT 'markdown 文件相对路径',
+  layout VARCHAR(20) NOT NULL DEFAULT 'default' COMMENT '布局: default/minimal/banner',
+  ext JSON COMMENT '扩展字段(JSON): 封面图/置顶/自定义slug等',
   status TINYINT DEFAULT 0 COMMENT '0草稿 1发布',
   view_count INT DEFAULT 0 COMMENT '浏览量',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
