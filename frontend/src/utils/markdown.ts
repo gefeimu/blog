@@ -56,7 +56,7 @@ export function renderArticle(source: string): { html: string; toc: string } {
       containerClass: 'toc',
       // 目录仅收录 h2/h3（文章主标题 h1 由布局组件单独展示）
       level: [2, 3],
-      callback: (code) => {
+      callback: (code: string) => {
         toc = code
       },
     })
