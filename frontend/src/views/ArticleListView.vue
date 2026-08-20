@@ -30,6 +30,15 @@ const currentTag = computed(() => tags.value.find((t) => t.id === tagId.value))
 // 顶部页标题：未筛选标签时显示"所有文章"
 const pageHeading = computed(() => (currentTag.value ? `标签：${currentTag.value.name}` : '所有文章'))
 
+// 标签名 -> Tag 的映射，传递给 ArticleCard 用于标签点击跳转
+const tagMap = computed(() => {
+  const m = new Map<string, Tag>()
+  for (const t of tags.value) {
+    m.set(t.name, t)
+  }
+  return m
+})
+
 async function load(append = false) {
   loading.value = true
   try {
@@ -92,17 +101,14 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section>
+  <section class="articles-page">
     <!-- 页头：参照 Tambouille，左侧大标题 + 数量 -->
     <header class="list-page-header">
       <div class="list-page-title">
         <h1 class="list-page-heading">{{ pageHeading }}</h1>
         <span class="list-page-count">（{{ total }}）</span>
       </div>
-    </header>
-
-    <!-- 搜索框 + 标签过滤行 -->
-    <div class="list-filters">
+      <!-- 搜索框移到右上角 -->
       <div class="search-bar">
         <input
           v-model="keyword"
@@ -120,50 +126,70 @@ onMounted(async () => {
           <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
       </div>
+    </header>
 
-      <div v-if="tags.length" class="tag-filter">
-        <button
-          type="button"
-          class="tag-filter-item"
-          :class="{ 'is-active': !tagId }"
-          @click="pickTag(undefined)"
-        >
-          全部
-        </button>
-        <button
-          v-for="t in tags"
-          :key="t.id"
-          type="button"
-          class="tag-filter-item"
-          :class="{ 'is-active': tagId === t.id }"
-          @click="pickTag(t.id)"
-        >
-          {{ t.name }}<span class="tag-filter-count">{{ t.count ?? 0 }}</span>
-        </button>
+    <!-- 主体：左侧标签边栏 + 右侧文章列表 -->
+    <div class="articles-body">
+      <!-- 左侧标签边栏 -->
+      <aside class="topics-sidebar">
+        <h3 class="topics-title">TOPICS</h3>
+        <nav class="topics-nav">
+          <a
+            class="topic-item"
+            :class="{ 'is-active': !tagId }"
+            @click="pickTag(undefined)"
+          >
+            <span class="topic-name">All posts</span>
+            <span class="topic-count">{{ total }}</span>
+          </a>
+          <a
+            v-for="t in tags"
+            :key="t.id"
+            class="topic-item"
+            :class="{ 'is-active': tagId === t.id }"
+            @click="pickTag(t.id)"
+          >
+            <span class="topic-name">{{ t.name }}</span>
+            <span class="topic-count">{{ t.count ?? 0 }}</span>
+          </a>
+        </nav>
+      </aside>
+
+    <!-- 右侧文章列表 -->
+    <div class="articles-main">
+        <p v-if="!keywordDebounced && !tagId" class="page-description">
+          A minimal archive for essays on engineering, architecture, and delivery.
+        </p>
+
+        <ul v-if="articles.length" class="list-divider">
+          <ArticleCard v-for="a in articles" :key="a.id" :article="a" :tag-map="tagMap" />
+        </ul>
+
+        <div v-if="loading" class="loading">加载中...</div>
+        <div v-else-if="!articles.length" class="empty-tip">
+          {{ currentTag ? `「${currentTag.name}」下还没有文章` : '还没有文章' }}
+        </div>
+        <div v-else-if="hasMore" class="load-more" @click="loadMore">
+          加载更多
+        </div>
       </div>
-    </div>
-
-    <!-- 文章列表 -->
-    <ul v-if="articles.length" class="list-divider">
-      <ArticleCard v-for="a in articles" :key="a.id" :article="a" />
-    </ul>
-
-    <div v-if="loading" class="loading">加载中...</div>
-    <div v-else-if="!articles.length" class="empty-tip">
-      {{ currentTag ? `「${currentTag.name}」下还没有文章` : '还没有文章' }}
-    </div>
-    <div v-else-if="hasMore" class="load-more" @click="loadMore">
-      加载更多
     </div>
   </section>
 </template>
 
 <style scoped>
+.articles-page {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+/* 页头：标题左 + 搜索框右 */
 .list-page-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  padding: 48px 0 20px;
+  padding: 48px 0 24px;
+  gap: 24px;
 }
 .list-page-title {
   display: inline-flex;
@@ -171,7 +197,7 @@ onMounted(async () => {
   gap: 12px;
 }
 .list-page-heading {
-  font-size: 60px;
+  font-size: 48px;
   font-weight: 800;
   line-height: 1.15;
   letter-spacing: -0.025em;
@@ -184,25 +210,21 @@ onMounted(async () => {
   font-weight: 400;
 }
 
-.list-filters {
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-/* 搜索框（仿 Tambouille 圆角描边 + 右侧放大镜） */
+/* 搜索框（紧凑版，放在标题右侧） */
 .search-bar {
   position: relative;
-  margin: 8px 0 20px;
+  flex-shrink: 0;
+  width: 240px;
 }
 .search-input {
   width: 100%;
-  height: 44px;
-  padding: 0 40px 0 16px;
+  height: 40px;
+  padding: 0 40px 0 14px;
   border: 1px solid var(--color-border);
   border-radius: 8px;
   background: transparent;
   color: var(--color-text);
-  font-size: 15px;
+  font-size: 14px;
   font-family: inherit;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
@@ -213,25 +235,25 @@ onMounted(async () => {
 }
 .search-icon {
   position: absolute;
-  right: 14px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   color: var(--color-text-light);
   pointer-events: none;
 }
 .search-clear {
   position: absolute;
-  right: 40px;
+  right: 34px;
   top: 50%;
   transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border: none;
   background: transparent;
   color: var(--color-text-light);
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
   cursor: pointer;
   padding: 0;
@@ -240,42 +262,82 @@ onMounted(async () => {
   color: var(--color-text);
 }
 
-/* 标题下的标签过滤（蓝色无背景，可点击） */
-.tag-filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  margin-bottom: 8px;
+/* 主体两栏布局 */
+.articles-body {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 48px;
+  align-items: start;
 }
-.tag-filter-item {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 4px;
-  border: none;
-  background: transparent;
-  padding: 4px 0;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  font-family: inherit;
-  transition: color 0.15s, transform 0.15s;
+
+/* ========== 左侧标签边栏 ========== */
+.topics-sidebar {
+  position: sticky;
+  top: 96px;
+  flex-shrink: 0;
 }
-.tag-filter-item:hover {
-  color: var(--color-primary-hover);
-}
-.tag-filter-item.is-active {
-  color: var(--color-text);
-  border-bottom: 2px solid var(--color-text);
-}
-.tag-filter-count {
+.topics-title {
   font-size: 11px;
-  font-weight: 400;
+  font-weight: 700;
+  letter-spacing: 2px;
   color: var(--color-text-light);
-  text-transform: none;
-  letter-spacing: 0;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.topics-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.topic-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--color-text-light);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+.topic-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: var(--color-text);
+}
+html.dark .topic-item:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+.topic-item.is-active {
+  background-color: rgba(0, 0, 0, 0.07);
+  color: var(--color-text);
+  font-weight: 600;
+}
+html.dark .topic-item.is-active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.topic-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topic-count {
+  flex-shrink: 0;
+  margin-left: 12px;
+  font-size: 12px;
+  color: var(--color-text-light);
+  opacity: 0.7;
+}
+
+/* ========== 右侧文章区 ========== */
+.articles-main {
+  min-width: 0;
+}
+.page-description {
+  color: var(--color-text-light);
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+  max-width: 560px;
 }
 
 .load-more {
@@ -289,20 +351,53 @@ onMounted(async () => {
   color: var(--color-primary);
 }
 
-/* 移动端 */
+/* 移动端：单栏布局，边栏折叠到顶部或隐藏 */
 @media (max-width: 768px) {
   .list-page-header {
-    padding: 32px 0 12px;
+    flex-direction: column;
+    padding: 32px 0 16px;
+    gap: 16px;
   }
   .list-page-heading {
-    font-size: 36px;
+    font-size: 32px;
   }
-  .search-input {
-    height: 40px;
-    font-size: 14px;
+  .search-bar {
+    width: 100%;
   }
-  .tag-filter {
-    gap: 12px;
+
+  .articles-body {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .topics-sidebar {
+    position: static;
+  }
+  .topics-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .topic-item {
+    padding: 4px 12px;
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 20px;
+    font-size: 13px;
+  }
+  .topic-item.is-active {
+    background-color: var(--color-primary);
+    color: #fff;
+  }
+  .topic-item.is-active .topic-count {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  html.dark .topic-item {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+  html.dark .topic-item.is-active {
+    background-color: var(--color-primary);
+  }
+  .page-description {
+    display: none;
   }
 }
 </style>
