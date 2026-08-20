@@ -78,11 +78,15 @@ function goTag(t: Tag) {
 }
 .tag-link {
   display: inline-flex;
-  align-items: baseline;
+  /* 中英文字形高度差异：CJK 字形填满 em 方块、Latin caps 只占 cap-height，
+     baseline 对齐时 Chinese 字顶会高出 English 字顶 → 视觉上"不对齐"。
+     改为 center + 固定行高，让两边在视觉中心对齐 */
+  align-items: center;
+  line-height: 1.2;
   gap: 6px;
   background: transparent;
   border: none;
-  padding: 0;
+  padding: 2px 0;
   font-size: 18px;
   font-weight: 600;
   color: var(--color-primary);
