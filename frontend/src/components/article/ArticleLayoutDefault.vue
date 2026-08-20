@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { formatDate } from '../../utils/format'
+import { computed } from 'vue'
+import { formatDate, calcReadingTime } from '../../utils/format'
 import type { ArticleDetail } from '../../types/blog'
 
-defineProps<{ article: ArticleDetail; html?: string }>()
+const props = defineProps<{ article: ArticleDetail; html?: string }>()
+
+const readingTime = computed(() => calcReadingTime(props.article.content))
 </script>
 
 <template>
@@ -12,6 +15,7 @@ defineProps<{ article: ArticleDetail; html?: string }>()
       <span>{{ article.categoryName }}</span>
       <span>{{ formatDate(article.createdAt) }}</span>
       <span>浏览 {{ article.viewCount ?? 0 }}</span>
+      <span>约 {{ readingTime }} 分钟</span>
       <span v-if="article.tags?.length">
         <span v-for="t in article.tags" :key="t" class="tag">{{ t }}</span>
       </span>

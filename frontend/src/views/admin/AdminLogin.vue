@@ -66,6 +66,9 @@ const onSubmit = async () => {
   justify-content: center;
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f0 100%);
 }
+:global(html.dark) .admin-login {
+  background: linear-gradient(135deg, #161616 0%, #1c2330 100%);
+}
 .login-card {
   width: 360px;
 }

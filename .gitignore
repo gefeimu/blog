@@ -28,3 +28,6 @@ target/
 # 系统
 .DS_Store
 Thumbs.db
+
+# vite 构建临时文件
+vite.config.ts.timestamp-*

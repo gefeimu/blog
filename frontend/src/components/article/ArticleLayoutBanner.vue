@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { formatDate } from '../../utils/format'
+import { formatDate, calcReadingTime } from '../../utils/format'
 import type { ArticleDetail } from '../../types/blog'
 
 const props = defineProps<{ article: ArticleDetail; html?: string }>()
 
 // 横幅封面图：ext.cover（扩展字段 JSON，编辑页可填）
 const cover = computed(() => props.article?.ext?.cover || '')
+const readingTime = computed(() => calcReadingTime(props.article.content))
 </script>
 
 <template>
@@ -20,6 +21,7 @@ const cover = computed(() => props.article?.ext?.cover || '')
         <span>{{ article.categoryName }}</span>
         <span>{{ formatDate(article.createdAt) }}</span>
         <span>浏览 {{ article.viewCount ?? 0 }}</span>
+        <span>约 {{ readingTime }} 分钟</span>
         <span v-if="article.tags?.length">
           <span v-for="t in article.tags" :key="t" class="tag">{{ t }}</span>
         </span>

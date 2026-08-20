@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 import { getArticle, getTags, createArticle, updateArticle } from '../../api/article'
 import { getCategories } from '../../api/category'
 import { getErrorMessage } from '../../api/request'
+import { useTheme } from '../../composables/useTheme'
 import type { Category, Tag } from '../../types/blog'
 
 const route = useRoute()
 const router = useRouter()
+const { theme } = useTheme()
 
 const articleId = route.params.id ? Number(route.params.id) : null
 const isEdit = articleId !== null
@@ -32,10 +34,13 @@ const form = ref({
 let vditor: Vditor | null = null
 
 const initVditor = () => {
+  const dark = theme.value === 'dark'
   vditor = new Vditor('vditor', {
     height: 'calc(100vh - 420px)',
     minHeight: 360,
     mode: 'ir',
+    // 主题跟随全局暗色模式（可被下方 watch 动态切换）
+    theme: dark ? 'dark' : 'classic',
     placeholder: '开始写作…（支持 Markdown，可拖拽/粘贴上传图片）',
     cache: { enable: false },
     toolbarConfig: { pin: true },
@@ -141,6 +146,12 @@ onMounted(async () => {
 
 onUnmounted(() => {
   vditor?.destroy()
+})
+
+// 全局暗色切换时联动 Vditor 编辑器主题（编辑器/内容/代码三段都切）
+watch(theme, (t) => {
+  const dark = t === 'dark' ? 'dark' : 'classic'
+  vditor?.setTheme(dark, dark, dark)
 })
 </script>
 

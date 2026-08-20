@@ -14,6 +14,8 @@
     "axios": "^1.7.2",
     "element-plus": "^2.14.4",
     "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^9.2.1",
+    "markdown-it-toc-done-right": "^4.2.0",
     "vditor": "^3.11.3",
     "vue": "^3.4.27",
     "vue-router": "^4.3.2"

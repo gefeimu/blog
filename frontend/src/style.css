@@ -22,6 +22,12 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   line-height: 1.7;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* TOC 锚点跳转平滑滚动 */
+html {
+  scroll-behavior: smooth;
 }
 
 a {
@@ -277,4 +283,74 @@ a:hover {
 }
 .admin-page-card .el-card__body {
   padding: 20px 24px;
+}
+
+/* ---------- 详情页 TOC 目录 ---------- */
+.toc ol,
+.toc ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+.toc li {
+  margin: 2px 0;
+  line-height: 1.6;
+}
+.toc ol ol,
+.toc ul ul {
+  padding-left: 12px;
+}
+.toc a {
+  display: block;
+  padding: 3px 0;
+  color: var(--color-text-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.toc a:hover {
+  color: var(--color-primary);
+}
+
+/* 标题 hover 显示 # 锚点链接（markdown-it-anchor permalink） */
+.header-anchor {
+  opacity: 0;
+  margin-left: 8px;
+  font-weight: 400;
+  color: var(--color-text-light) !important;
+  border-bottom: none !important;
+  transition: opacity 0.2s;
+}
+.article-content h1:hover .header-anchor,
+.article-content h2:hover .header-anchor,
+.article-content h3:hover .header-anchor,
+.article-content h4:hover .header-anchor {
+  opacity: 1;
+}
+
+/* ---------- 暗色模式（html.dark 由 useTheme 切换，Element Plus 变量自带暗色） ---------- */
+html.dark {
+  --color-bg: #161616;
+  --color-card: #1e1e1e;
+  --color-text: #e2e2e2;
+  --color-text-light: #9a9a9a;
+  --color-primary: #d4a72c;
+  --color-border: #343434;
+  --color-code-bg: #0d1117;
+}
+html.dark .article-content th {
+  background: #262626;
+}
+html.dark .tag {
+  background: #3a3220;
+  color: #d4a72c;
+}
+html.dark .banner-cover {
+  background: #2a2a2a;
+}
+html.dark .site-header {
+  background: var(--color-card);
+}
+html.dark .admin-aside {
+  background: #0d1220;
 }

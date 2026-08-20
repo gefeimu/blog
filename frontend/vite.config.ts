@@ -8,6 +8,10 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 // 例：.env.development 里写 VITE_PROXY_TARGET=http://192.168.1.10
 const proxyTarget = process.env.VITE_PROXY_TARGET || 'http://localhost:80'
 
+// dts 声明文件生成开关：IDE 锁定 src/*.d.ts 导致 build 写入 EPERM 时，
+// 设 SKIP_DTS=1 跳过生成（类型检查已用现有声明通过，build 阶段无需重写）
+const genDts = process.env.SKIP_DTS !== '1'
+
 export default defineConfig({
   plugins: [
     vue(),
@@ -16,11 +20,11 @@ export default defineConfig({
     // dts 输出到 src/ 下，供 tsconfig include（vue-tsc 类型检查需要）
     AutoImport({
       resolvers: [ElementPlusResolver()],
-      dts: 'src/auto-imports.d.ts',
+      dts: genDts && 'src/auto-imports.d.ts',
     }),
     Components({
       resolvers: [ElementPlusResolver()],
-      dts: 'src/components.d.ts',
+      dts: genDts && 'src/components.d.ts',
     }),
   ],
   build: {

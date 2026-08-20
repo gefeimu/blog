@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
-import { Document, FolderOpened, EditPen, SwitchButton, ArrowLeftBold } from '@element-plus/icons-vue'
+import { Document, FolderOpened, EditPen, SwitchButton, ArrowLeftBold, Sunny, Moon } from '@element-plus/icons-vue'
+import { useTheme } from '../../composables/useTheme'
 
 const route = useRoute()
 const router = useRouter()
+const { theme, toggleTheme } = useTheme()
 
 const nickname = localStorage.getItem('blog_nickname') || 'admin'
 
@@ -41,6 +43,17 @@ const logout = () => {
           <span>返回前台</span>
         </router-link>
         <div class="header-actions">
+          <el-button
+            circle
+            class="theme-btn"
+            :title="theme === 'dark' ? '切换到亮色模式' : '切换到暗色模式'"
+            @click="toggleTheme"
+          >
+            <el-icon>
+              <Sunny v-if="theme === 'dark'" />
+              <Moon v-else />
+            </el-icon>
+          </el-button>
           <span class="header-nickname">{{ nickname }}</span>
           <el-button link type="danger" :icon="SwitchButton" @click="logout">退出登录</el-button>
         </div>
@@ -92,15 +105,15 @@ const logout = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ed;
+  background: var(--el-bg-color);
+  border-bottom: 1px solid var(--el-border-color-light);
   padding: 0 20px;
 }
 .back-front {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #606266;
+  color: var(--el-text-color-regular);
   font-size: 14px;
 }
 .back-front:hover {
@@ -112,12 +125,12 @@ const logout = () => {
   gap: 12px;
 }
 .header-nickname {
-  color: #606266;
+  color: var(--el-text-color-regular);
   font-size: 14px;
 }
 .admin-main {
   --el-main-padding: 0;
-  background: #f5f7fa;
+  background: var(--el-bg-color-page);
   overflow: auto;
 }
 </style>

@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { formatDate } from '../../utils/format'
+import { computed } from 'vue'
+import { formatDate, calcReadingTime } from '../../utils/format'
 import type { ArticleDetail } from '../../types/blog'
 
-defineProps<{ article: ArticleDetail; html?: string }>()
+const props = defineProps<{ article: ArticleDetail; html?: string }>()
+
+const readingTime = computed(() => calcReadingTime(props.article.content))
 </script>
 
 <template>
   <article class="card minimal-card">
     <h1 class="article-title minimal-title">{{ article.title }}</h1>
-    <div class="minimal-meta">{{ formatDate(article.createdAt) }}</div>
+    <div class="minimal-meta">
+      {{ formatDate(article.createdAt) }} · 约 {{ readingTime }} 分钟
+    </div>
 
     <div v-if="html" class="article-content" v-html="html"></div>
     <div v-else class="empty-tip" style="padding: 32px 0">
