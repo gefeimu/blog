@@ -66,3 +66,13 @@ html[data-font='serif'] {
   --font-display: 'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC',
     'SimSun', '宋体', serif;
 }
+
+/* 得意黑是窄斜体，字身偏紧凑：正文加轻微字距、标题加更宽字距 */
+html[data-font='smiley'] body {
+  letter-spacing: 0.03em;
+}
+html[data-font='smiley'] h1,
+html[data-font='smiley'] h2,
+html[data-font='smiley'] h3 {
+  letter-spacing: 0.05em;
+}
