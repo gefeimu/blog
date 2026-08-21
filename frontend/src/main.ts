@@ -2,6 +2,8 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import './style.css'
+// 可插拔字体层（@font-face + 字体族 CSS 变量 + 主题切换）
+import './fonts.css'
 // Element Plus 暗色变量（html.dark 下生效，配合 useTheme 切换）
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import { initTheme } from './composables/useTheme'

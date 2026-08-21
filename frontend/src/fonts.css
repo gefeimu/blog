@@ -1,0 +1,68 @@
+/* ============================================================
+   字体层（可插拔）
+   ------------------------------------------------------------
+   规则：
+   1. 每种 web 字体一个 @font-face 块；停用 = 删掉对应块
+   2. 字体族一律走 CSS 变量（--font-body / --font-display / --font-mono），
+      页面/组件只引用变量，换字体只改这一处
+   3. 主题切换 = 给 <html> 加 data-font="xxx"，覆盖变量即可，
+      不需要改任何组件
+   4. @font-face 声明的字体只有被实际使用时浏览器才下载，
+      所以可以安全声明多种字体，切换器随意切换不浪费流量
+   ============================================================ */
+
+/* ---------- 1. @font-face 声明区 ---------- */
+
+/* 得意黑 Smiley Sans：简体常用字 + 拉丁，窄斜粗体（仅一款字重）
+   来源：atelier-anchor/smiley-sans v2.0.1 · SIL OFL 1.1 */
+@font-face {
+  font-family: 'Smiley Sans';
+  src: url('./assets/fonts/SmileySans-Oblique.ttf.woff2') format('woff2');
+  font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* 想加新字体：复制上面块，改 font-family 名 + src 路径即可 */
+/*
+@font-face {
+  font-family: 'My New Font';
+  src: url('./assets/fonts/my-new-font.woff2') format('woff2');
+  font-display: swap;
+}
+*/
+
+/* ---------- 2. 默认字体族变量 ---------- */
+
+:root {
+  /* 正文：西文系统字体 + 中文黑体回退 */
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  /* 标题/展示：默认跟随正文，主题里单独覆盖 */
+  --font-display: var(--font-body);
+  /* 代码 */
+  --font-mono: 'SF Mono', 'JetBrains Mono', Menlo, Consolas, 'Courier New',
+    monospace;
+}
+
+/* ---------- 3. 主题（切换器选项） ---------- */
+
+/* 主题：得意黑（标题 + 正文都用） */
+html[data-font='smiley'] {
+  --font-body: 'Smiley Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-display: 'Smiley Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* 主题：楷体（系统字体，零下载） */
+html[data-font='kaiti'] {
+  --font-body: 'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', serif;
+  --font-display: 'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', serif;
+}
+
+/* 主题：宋体（系统字体，零下载） */
+html[data-font='serif'] {
+  --font-body: 'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC',
+    'SimSun', '宋体', serif;
+  --font-display: 'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC',
+    'SimSun', '宋体', serif;
+}

@@ -2,6 +2,7 @@
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { Sunny, Moon } from '@element-plus/icons-vue'
 import { useTheme } from './composables/useTheme'
+import FontSwitcher from './components/FontSwitcher.vue'
 
 const { theme, toggleTheme } = useTheme()
 
@@ -51,6 +52,9 @@ const navItems = [
       <main class="app-main">
         <router-view />
       </main>
+
+      <!-- 右下角字体切换器（可插拔字体层预览用） -->
+      <FontSwitcher />
     </div>
   </el-config-provider>
 </template>
