@@ -106,6 +106,9 @@ function goTag(t: Tag) {
   color: var(--color-text-light);
   font-weight: 500;
   font-size: 14px;
+  /* 行高锁成 18px（= 主文字 font-size），让 (3) 的行盒与主文字 font-size
+     同高 → align-items: center 居中后两边落在同一条隐形水平线上 */
+  line-height: 18px;
 }
 
 @media (max-width: 768px) {
