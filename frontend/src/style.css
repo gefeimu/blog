@@ -357,8 +357,9 @@ a:hover {
 
 /* ---------- 详情页 markdown 正文 ---------- */
 .article-content {
-  font-size: 15px;
+  font-size: 16px;
   margin-top: 20px;
+  line-height: 1.8;
 }
 
 .article-content h1,
