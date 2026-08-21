@@ -37,16 +37,15 @@ function onClickTag(tagName: string) {
       <!-- 左侧日期 + 封面 -->
       <div class="post-date-col">
         <span class="post-date">{{ formattedDate }}</span>
-        <div class="post-cover-wrap">
+        <!-- 无封面图时整个封面区不渲染 -->
+        <div v-if="coverUrl" class="post-cover-wrap">
           <img
-            v-if="coverUrl"
             :src="coverUrl"
             :alt="article.title"
             class="post-cover"
             loading="lazy"
             @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
           />
-          <div v-else class="post-cover-fallback">📝</div>
         </div>
       </div>
 
@@ -135,20 +134,6 @@ function onClickTag(tagName: string) {
 }
 html.dark .post-cover {
   background: #2a2a2a;
-}
-.post-cover-fallback {
-  width: 140px;
-  height: 88px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 100%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  color: #94a3b8;
-}
-html.dark .post-cover-fallback {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
 /* 中间主内容区 */
