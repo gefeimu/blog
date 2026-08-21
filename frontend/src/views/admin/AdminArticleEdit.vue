@@ -115,8 +115,13 @@ const loadArticle = async () => {
   try {
     const res = await getArticle(articleId as number)
     form.value.title = res.title
-    form.value.categoryId = null
-    form.value.tagIds = res.tagIds || []
+    // 详情接口返回 categoryId（ArticleVO.categoryId），直接回填
+    form.value.categoryId = res.categoryId ?? null
+    // 后端详情只返回 tags（名字数组）不返回 tagIds，
+    // 用已加载的 tags 列表做 名字 → id 映射回填（标签名唯一）
+    form.value.tagIds = (res.tags || [])
+      .map((name) => tags.value.find((t) => t.name === name)?.id)
+      .filter((id): id is number => id != null)
     form.value.summary = res.summary || ''
     form.value.status = res.status
     form.value.layout = res.layout || 'default'
