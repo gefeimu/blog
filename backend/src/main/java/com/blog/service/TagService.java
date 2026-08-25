@@ -27,6 +27,11 @@ public class TagService {
         if (tag.getName() == null || tag.getName().isBlank()) {
             throw BizException.badRequest("标签名不能为空");
         }
+        String name = tag.getName().trim();
+        if (tagMapper.selectByName(name) != null) {
+            throw BizException.conflict("标签已存在: " + name);
+        }
+        tag.setName(name);
         tagMapper.insert(tag);
         return tagMapper.selectById(tag.getId());
     }
@@ -39,7 +44,13 @@ public class TagService {
         if (tag.getName() == null || tag.getName().isBlank()) {
             throw BizException.badRequest("标签名不能为空");
         }
+        String name = tag.getName().trim();
+        Tag existing = tagMapper.selectByName(name);
+        if (existing != null && !existing.getId().equals(id)) {
+            throw BizException.conflict("标签已存在: " + name);
+        }
         tag.setId(id);
+        tag.setName(name);
         tagMapper.update(tag);
         return tagMapper.selectById(id);
     }

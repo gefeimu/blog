@@ -28,6 +28,13 @@
         WHERE id = #{id}
     </select>
 
+    <select id="selectByName" resultMap="tagMap">
+        SELECT id, name, created_at
+        FROM tag
+        WHERE name = #{name}
+        LIMIT 1
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tag (name)
         VALUES (#{name})

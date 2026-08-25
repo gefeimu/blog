@@ -13,6 +13,9 @@ public interface CategoryMapper {
 
     Category selectById(Long id);
 
+    /** 按名称精确查询（重名校验用，DB 层有唯一约束兜底） */
+    Category selectByName(@Param("name") String name);
+
     int insert(Category category);
 
     int update(Category category);

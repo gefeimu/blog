@@ -34,9 +34,14 @@ public class CategoryService {
         if (category.getName() == null || category.getName().isBlank()) {
             throw BizException.badRequest("分类名不能为空");
         }
+        String name = category.getName().trim();
+        if (categoryMapper.selectByName(name) != null) {
+            throw BizException.conflict("分类已存在: " + name);
+        }
         if (category.getSort() == null) {
             category.setSort(0);
         }
+        category.setName(name);
         categoryMapper.insert(category);
         return categoryMapper.selectById(category.getId());
     }
@@ -49,7 +54,13 @@ public class CategoryService {
         if (category.getName() == null || category.getName().isBlank()) {
             throw BizException.badRequest("分类名不能为空");
         }
+        String name = category.getName().trim();
+        Category existing = categoryMapper.selectByName(name);
+        if (existing != null && !existing.getId().equals(id)) {
+            throw BizException.conflict("分类已存在: " + name);
+        }
         category.setId(id);
+        category.setName(name);
         categoryMapper.update(category);
         return categoryMapper.selectById(id);
     }

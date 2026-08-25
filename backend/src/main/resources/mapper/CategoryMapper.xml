@@ -23,6 +23,13 @@
         WHERE id = #{id}
     </select>
 
+    <select id="selectByName" resultMap="categoryMap">
+        SELECT id, name, sort, created_at
+        FROM category
+        WHERE name = #{name}
+        LIMIT 1
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO category (name, sort)
         VALUES (#{name}, #{sort})

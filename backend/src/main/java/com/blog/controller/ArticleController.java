@@ -1,10 +1,14 @@
 package com.blog.controller;
 
+import com.blog.common.BizException;
 import com.blog.common.PageResult;
 import com.blog.dto.ArticleRequest;
 import com.blog.dto.ArticleVO;
 import com.blog.service.ArticleService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,12 +42,19 @@ public class ArticleController {
         if (size < 1 || size > 100) {
             size = 10;
         }
-        return articleService.page(page, size, status, categoryId, tagId, keyword);
+        // 安全：未登录只能看已发布文章，status 参数对游客强制为 1，防草稿泄露
+        Integer effectiveStatus = isAuthenticated() ? status : 1;
+        return articleService.page(page, size, effectiveStatus, categoryId, tagId, keyword);
     }
 
     @GetMapping("/{id}")
     public ArticleVO detail(@PathVariable Long id) {
-        return articleService.getById(id);
+        ArticleVO vo = articleService.getById(id);
+        // 安全：草稿只对登录态（后台）可见，游客访问返回 404 不暴露存在性
+        if (!isAuthenticated() && vo.getStatus() != 1) {
+            throw BizException.notFound("文章不存在");
+        }
+        return vo;
     }
 
     @PostMapping
@@ -60,5 +71,13 @@ public class ArticleController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         articleService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /** 当前请求是否已登录（JwtAuthFilter 注入的认证；匿名访问者是 AnonymousAuthenticationToken） */
+    private boolean isAuthenticated() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null
+                && auth.isAuthenticated()
+                && !(auth instanceof AnonymousAuthenticationToken);
     }
 }
