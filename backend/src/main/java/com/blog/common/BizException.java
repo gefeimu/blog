@@ -33,6 +33,10 @@ public class BizException extends RuntimeException {
         return new BizException(ErrorCode.CONFLICT, message);
     }
 
+    public static BizException tooManyRequests(String message) {
+        return new BizException(ErrorCode.TOO_MANY_REQUESTS, message);
+    }
+
     public static BizException internalError(String message) {
         return new BizException(ErrorCode.INTERNAL_ERROR, message);
     }
