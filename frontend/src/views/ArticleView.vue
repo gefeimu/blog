@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import type { Component } from 'vue'
 import { useRoute } from 'vue-router'
 import { getArticle } from '../api/article'
 import { renderArticle, hasTocContent } from '../utils/markdown'
 import type { ArticleDetail } from '../types/blog'
+import { init as initWaline, type WalineInstance } from '@waline/client'
+import '@waline/client/waline.css'
 import ArticleLayoutDefault from '../components/article/ArticleLayoutDefault.vue'
 import ArticleLayoutMinimal from '../components/article/ArticleLayoutMinimal.vue'
 import ArticleLayoutBanner from '../components/article/ArticleLayoutBanner.vue'
@@ -30,6 +32,23 @@ const currentLayout = computed(
 // 正文与 TOC 由同一 markdown-it 实例渲染，锚点同源一致
 const showToc = computed(() => hasTocContent(tocHtml.value))
 
+// Waline 评论：文章加载完成后初始化，组件销毁时清理
+let waline: WalineInstance | null = null
+const walineEl = ref<HTMLDivElement | null>(null)
+
+function mountWaline() {
+  if (!article.value || !walineEl.value) return
+  waline = initWaline({
+    el: walineEl.value,
+    serverURL: '/comment',
+    lang: 'zh-CN',
+    dark: 'auto',
+    pageview: true,
+    reaction: true,
+    requiredMeta: ['nick', 'mail'],
+  })
+}
+
 onMounted(async () => {
   try {
     article.value = await getArticle(String(route.params.id))
@@ -43,6 +62,13 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+  await nextTick()
+  mountWaline()
+})
+
+onBeforeUnmount(() => {
+  waline?.destroy()
+  waline = null
 })
 </script>
 
@@ -62,6 +88,8 @@ onMounted(async () => {
         </aside>
       </div>
       <component v-else :is="currentLayout" :article="article" :html="html" />
+      <!-- 评论区：独立于正文布局，所有布局下均展示 -->
+      <div ref="walineEl" class="waline-wrap"></div>
     </template>
   </div>
 </template>
@@ -69,6 +97,9 @@ onMounted(async () => {
 <style scoped>
 .article-page {
   padding: 24px 0 48px;
+}
+.waline-wrap {
+  margin-top: 40px;
 }
 .article-with-toc {
   display: grid;

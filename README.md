@@ -11,14 +11,15 @@
 | 前端 | Vue 3 + Vite + Element Plus（开发中） |
 | 后端 | Spring Boot 3.2 · MyBatis（XML 映射）· Spring Security |
 | 数据库 | MySQL 8（正文存 Markdown 文件，DB 只存元数据） |
-| 部署 | Docker Compose（MySQL + 后端 + Nginx） |
+| 部署 | Docker Compose（MySQL + 后端 + Nginx + Waline 评论） |
 | 持续集成 | GitHub Actions（CI + CD 自动部署） |
 
 ## 功能
 
 - 文章：分页列表（按分类/状态筛选）、详情、发布/草稿、增删改
 - 内容组织：分类（主题大类，单选）+ 标签（跨分类细粒度，多选）
-- 博客惯例：详情页浏览量自动 +1
+- 博客惯例：详情页浏览量自动 +1（评论系统另有独立阅读数统计）
+- 评论：Waline 自托管（先审后发 + 表情回应 + 暗色跟随），管理后台 `/comment/ui/`
 - API 风格：REST + JSON
 
 ## 架构
@@ -28,9 +29,9 @@
   │
   ▼
 Nginx (:80) ── 静态资源 + 反代 /api
-  │
-  ▼
-Spring Boot (:8080)
+  │                            │
+  ▼                            ▼
+Spring Boot (:8080)        Waline (:8360，评论)
   │
   ▼
 MySQL 8 (内网 mysql:3306，不暴露宿主机)
@@ -40,7 +41,7 @@ MySQL 8 (内网 mysql:3306，不暴露宿主机)
 
 ```
 blog/
-├── docker-compose.yml      # 三件套编排（backend 支持本地构建 + 远程镜像双模式）
+├── docker-compose.yml      # 四件套编排（backend 支持本地构建 + 远程镜像双模式）
 ├── .env                    # 数据库密码等环境变量（不入库）
 ├── .github/workflows/
 │   ├── ci-cd.yml           # CI/CD：后端测试 → 镜像推 ghcr.io → 自托管 Runner 部署
@@ -74,9 +75,10 @@ cp .env.example .env   # 按需修改数据库密码
 docker compose up -d --build
 
 # 3. 验证
-docker compose ps                  # 三个容器都 Up
+docker compose ps                  # 四个容器都 Up
 curl localhost/api/health          # 后端存活
 curl localhost/api/categories      # MySQL 连通（6 条中文分类）
+curl localhost/comment/ui/         # Waline 评论管理后台（首次访问注册管理员）
 ```
 
 浏览器访问 `http://<服务器IP>/` 看到页面即全链路通。
