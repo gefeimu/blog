@@ -43,7 +43,7 @@ blog/
 ├── docker-compose.yml      # 三件套编排（backend 支持本地构建 + 远程镜像双模式）
 ├── .env                    # 数据库密码等环境变量（不入库）
 ├── .github/workflows/
-│   ├── ci-cd.yml           # CI/CD：后端测试 → 镜像推 ghcr.io → SSH 部署
+│   ├── ci-cd.yml           # CI/CD：后端测试 → 镜像推 ghcr.io → 自托管 Runner 部署
 │   └── build-frontend.yml  # 前端产物自动构建回提交
 ├── nginx/
 │   ├── default.conf        # Nginx 反代配置
@@ -110,32 +110,43 @@ push 到 main 自动执行（`.github/workflows/ci-cd.yml`）：
 
 ```
 backend-test  →  docker-image  →  deploy
-mvn package   构建镜像推 ghcr.io  SSH 登录服务器
-（编译+测试）   latest + commit SHA    pull + up -d
+mvn package    构建镜像推 ghcr.io  自托管 Runner 本机执行
+（编译+测试）   latest + commit SHA   git pull + pull + up -d
 ```
 
-前端源码改动走 `build-frontend.yml`：先自动构建产物回提交到 `nginx/html`，再由产物提交触发上表流水线部署，前后端互不阻塞。
+前两段在 GitHub 云端跑；`deploy` 段跑在**部署机上的自托管 Runner**（Runner 主动连 GitHub 拉任务，只需出网，无需公网 IP、无需 SSH 密钥）。前端源码改动走 `build-frontend.yml`：先自动构建产物回提交到 `nginx/html`，再由产物提交触发上表流水线部署，前后端互不阻塞。
 
 **首次配置（只需一次）：**
 
-1. 仓库 Settings → Secrets and variables → Actions，新增三个 Secret：
-
-| Secret | 值 |
-|---|---|
-| `SERVER_HOST` | 服务器 IP |
-| `SERVER_USER` | SSH 登录用户名 |
-| `SERVER_SSH_KEY` | 服务器私钥 PEM 完整内容（含换行） |
-
-2. 服务器上准备部署目录（流水线会自动 clone，只需建 `.env`）：
+1. **部署机装 Runner**（仓库 Settings → Actions → Runners → New self-hosted runner，选 Linux x64，复制下载+注册命令，在部署机上执行）：
 
 ```bash
-mkdir -p /opt/blog
-scp .env <user>@<host>:/opt/blog/.env   # 从本机拷贝，含数据库密码/JWT密钥/管理员密码
+# 下载并解压 runner（具体 URL/命令以页面为准）
+mkdir -p ~/actions-runner && cd ~/actions-runner
+curl -o actions-runner-linux-x64-2.319.1.tar.gz -L <下载地址>
+tar xzf actions-runner-linux-x64-2.319.1.tar.gz
+./config.sh --url https://github.com/<你的用户名>/blog --token <页面给的 TOKEN>
+./run.sh          # 前台跑；想开机自启见下方 systemd
 ```
 
-之后每次 push，流水线自动完成：测试 → 打镜像推 `ghcr.io/<仓库>:latest` → 服务器 `git pull` + `docker compose pull backend` + `up -d`。
+2. **给 Runner 用户 Docker 权限**（部署脚本要用 docker）：
 
-镜像当前存 ghcr.io（公开仓库免费无限、零额外注册）；服务器在国内想提速时，可切阿里云 ACR，只需改 `docker-compose.yml` 的 image 地址和流水线登录步骤。
+```bash
+sudo usermod -aG docker $USER && newgrp docker
+```
+
+3. **准备部署目录**（流水线会自动 clone 到 `~/blog`，只需放 `.env`）：
+
+```bash
+cd ~ && git clone https://github.com/<你的用户名>/blog.git
+cp blog/.env.example blog/.env   # 填入数据库密码/JWT密钥/管理员密码（与 .env.example 格式一致）
+```
+
+> Runner 开机自启（可选，推荐）：`sudo ./svc.sh install && sudo ./svc.sh start`
+
+之后每次 push，流水线自动完成：测试 → 打镜像推 `ghcr.io/<仓库>:latest` → 部署机 `git pull` + `docker compose pull backend` + `up -d --no-build`。
+
+镜像当前存 ghcr.io（公开仓库免费无限、零额外注册）；部署机在国内拉 ghcr.io 慢时，可切阿里云 ACR，只需改 `docker-compose.yml` 的 image 地址和流水线登录步骤。
 
 ## Roadmap
 
