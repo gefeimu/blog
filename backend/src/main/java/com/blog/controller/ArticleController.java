@@ -43,7 +43,12 @@ public class ArticleController {
             size = 10;
         }
         // 安全：未登录只能看已发布文章，status 参数对游客强制为 1，防草稿泄露
-        Integer effectiveStatus = isAuthenticated() ? status : 1;
+        // 注意：不能写成 isAuthenticated() ? status : 1 —— Integer 与 int 混用会触发自动拆箱，
+        // status 为 null 时直接 NPE（管理端列表不带 status 参数时必现 500）
+        Integer effectiveStatus = 1;
+        if (isAuthenticated()) {
+            effectiveStatus = status;
+        }
         return articleService.page(page, size, effectiveStatus, categoryId, tagId, keyword);
     }
 
