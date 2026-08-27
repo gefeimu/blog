@@ -1,0 +1,107 @@
+# CI/CD 流水线：后端测试 → 构建镜像推 ghcr.io → SSH 部署服务器
+#
+# 触发条件：
+# - push main 且改动涉及 backend/**、nginx/**、docker-compose.yml、本文件
+# - 前端源码改动由 build-frontend.yml 负责构建产物回提交到 nginx/html，
+#   产物提交（[skip ci]）再触发本流水线部署，两者不冲突
+# - 手动触发：仓库 Actions 页 → CI/CD → Run workflow
+#
+# 需要的 Secrets（仓库 Settings → Secrets and variables → Actions）：
+#   SERVER_HOST     服务器 IP
+#   SERVER_USER     SSH 登录用户名
+#   SERVER_SSH_KEY  服务器私钥（含换行的 PEM 完整内容）
+#
+# 服务器首次部署见 README「CI/CD 部署」一节
+
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'nginx/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/ci-cd.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ci-cd
+  cancel-in-progress: true
+
+jobs:
+  # ---------- CI：后端编译 + 测试 ----------
+  backend-test:
+    name: Backend test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build with Maven
+        run: cd backend && mvn -B package
+
+  # ---------- CD：构建镜像 + 推送 ghcr.io ----------
+  docker-image:
+    name: Build & push image
+    needs: backend-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ---------- CD：SSH 部署服务器 ----------
+  deploy:
+    name: Deploy to server
+    needs: docker-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            if [ ! -d /opt/blog/.git ]; then
+              git clone https://github.com/${{ github.repository }}.git /opt/blog
+            fi
+            cd /opt/blog
+            if [ ! -f .env ]; then
+              echo "缺少 /opt/blog/.env，请参照 .env.example 手动创建后重跑部署"
+              exit 1
+            fi
+            git pull --ff-only
+            docker compose pull backend
+            docker compose up -d
+            docker image prune -f

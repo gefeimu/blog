@@ -12,7 +12,7 @@
 | 后端 | Spring Boot 3.2 · MyBatis（XML 映射）· Spring Security |
 | 数据库 | MySQL 8（正文存 Markdown 文件，DB 只存元数据） |
 | 部署 | Docker Compose（MySQL + 后端 + Nginx） |
-| 持续集成 | GitHub Actions（规划中） |
+| 持续集成 | GitHub Actions（CI + CD 自动部署） |
 
 ## 功能
 
@@ -40,8 +40,11 @@ MySQL 8 (内网 mysql:3306，不暴露宿主机)
 
 ```
 blog/
-├── docker-compose.yml      # 三件套编排
+├── docker-compose.yml      # 三件套编排（backend 支持本地构建 + 远程镜像双模式）
 ├── .env                    # 数据库密码等环境变量（不入库）
+├── .github/workflows/
+│   ├── ci-cd.yml           # CI/CD：后端测试 → 镜像推 ghcr.io → SSH 部署
+│   └── build-frontend.yml  # 前端产物自动构建回提交
 ├── nginx/
 │   ├── default.conf        # Nginx 反代配置
 │   └── html/index.html     # 前端占位页（Vue 接入后替换）
@@ -101,6 +104,39 @@ docker compose down                 # 停掉全部
 docker compose down -v             # 停掉并删 MySQL 数据（重来）
 ```
 
+## CI/CD 部署
+
+push 到 main 自动执行（`.github/workflows/ci-cd.yml`）：
+
+```
+backend-test  →  docker-image  →  deploy
+mvn package   构建镜像推 ghcr.io  SSH 登录服务器
+（编译+测试）   latest + commit SHA    pull + up -d
+```
+
+前端源码改动走 `build-frontend.yml`：先自动构建产物回提交到 `nginx/html`，再由产物提交触发上表流水线部署，前后端互不阻塞。
+
+**首次配置（只需一次）：**
+
+1. 仓库 Settings → Secrets and variables → Actions，新增三个 Secret：
+
+| Secret | 值 |
+|---|---|
+| `SERVER_HOST` | 服务器 IP |
+| `SERVER_USER` | SSH 登录用户名 |
+| `SERVER_SSH_KEY` | 服务器私钥 PEM 完整内容（含换行） |
+
+2. 服务器上准备部署目录（流水线会自动 clone，只需建 `.env`）：
+
+```bash
+mkdir -p /opt/blog
+scp .env <user>@<host>:/opt/blog/.env   # 从本机拷贝，含数据库密码/JWT密钥/管理员密码
+```
+
+之后每次 push，流水线自动完成：测试 → 打镜像推 `ghcr.io/<仓库>:latest` → 服务器 `git pull` + `docker compose pull backend` + `up -d`。
+
+镜像当前存 ghcr.io（公开仓库免费无限、零额外注册）；服务器在国内想提速时，可切阿里云 ACR，只需改 `docker-compose.yml` 的 image 地址和流水线登录步骤。
+
 ## Roadmap
 
 - [x] 脚手架：MySQL 8 + Spring Boot 3 + Nginx 反代
@@ -109,6 +145,6 @@ docker compose down -v             # 停掉并删 MySQL 数据（重来）
 - [x] 文章正文 Markdown 文件存储 + 读取
 - [x] Vue 3 前台（列表/详情渲染）
 - [x] 图片上传 + Nginx 静态托管（`/uploads`，存储层已抽象 FileStorageService，可切换 OSS）
-- [ ] 后台管理（登录 + Markdown 编辑器）
-- [ ] GitHub Actions CI/CD
+- [x] 后台管理（登录 + Markdown 编辑器）
+- [x] GitHub Actions CI/CD
 - [ ] 上云：阿里云 ECS + 域名 + SSL + ICP 备案

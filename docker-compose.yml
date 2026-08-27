@@ -17,6 +17,7 @@ services:
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
   backend:
+    image: ghcr.io/gefeimu/blog:latest
     build: ./backend
     container_name: blog-backend
     restart: unless-stopped
