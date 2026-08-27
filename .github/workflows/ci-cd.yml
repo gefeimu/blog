@@ -98,4 +98,5 @@ jobs:
           git pull --ff-only
           docker compose pull backend
           docker compose up -d --no-build
+          docker restart blog-nginx
           docker image prune -f
